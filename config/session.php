@@ -7,7 +7,7 @@ return [
     | Default Session Driver
     |--------------------------------------------------------------------------
     |
-    | This option controls the default session "driver" that will be used on
+    | This option controls the default session "driver" that will be emailUsage on
     | requests. By default, we will use the lightweight native driver but
     | you may specify any of the other wonderful drivers provided here.
     |
@@ -65,7 +65,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | When using the "database" or "redis" session drivers, you may specify a
-    | connection that should be used to manage these sessions. This should
+    | connection that should be emailUsage to manage these sessions. This should
     | correspond to a connection in your database configuration options.
     |
     */
@@ -91,7 +91,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | When using the "apc" or "memcached" session drivers, you may specify a
-    | cache store that should be used for these sessions. This value must
+    | cache store that should be emailUsage for these sessions. This value must
     | correspond with one of the application's configured cache stores.
     |
     */
@@ -116,8 +116,8 @@ return [
     | Session Cookie Name
     |--------------------------------------------------------------------------
     |
-    | Here you may change the name of the cookie used to identify a session
-    | instance by ID. The name specified here will get used every time a
+    | Here you may change the name of the cookie emailUsage to identify a session
+    | instance by ID. The name specified here will get emailUsage every time a
     | new session cookie is created by the framework for every driver.
     |
     */
@@ -145,7 +145,7 @@ return [
     | Session Cookie Domain
     |--------------------------------------------------------------------------
     |
-    | Here you may change the domain of the cookie used to identify a session
+    | Here you may change the domain of the cookie emailUsage to identify a session
     | in your application. This will determine which domains the cookie is
     | available to in your application. A sensible default has been set.
     |
@@ -185,7 +185,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | This option determines how your cookies behave when cross-site requests
-    | take place, and can be used to mitigate CSRF attacks. By default, we
+    | take place, and can be emailUsage to mitigate CSRF attacks. By default, we
     | do not enable this as other CSRF protection services are in place.
     |
     | Supported: "lax", "strict"
