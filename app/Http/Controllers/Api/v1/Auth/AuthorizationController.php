@@ -17,6 +17,8 @@ class AuthorizationController extends Controller
 
     /**
      * @param AuthorizationRequest $request
+     *
+     * 登录验证
      */
     public function store(AuthorizationRequest $request)
     {
@@ -24,11 +26,22 @@ class AuthorizationController extends Controller
             return $this->response->errorUnauthorized('用户名或密码错误');
         }
 
-        return $this->responseArray([
-            'token' => $token,
-            'type' => 'Bearer',
-            'expires' => $this->guard()->factory()->getTTL() * 60,
-            'user'=>\Auth::getUser(),
-        ], 201);
+        return $this->responseWithToken($token);
+    }
+
+    /**
+     * 刷新当前凭证
+     */
+    public function update(){
+        $token = $this->guard()->refresh();
+        return $this->responseWithToken($token);
+    }
+
+    /**
+     * 删除当前凭证
+     */
+    public function delete(){
+        $this->guard()->logout();
+        return $this->response->noContent();
     }
 }

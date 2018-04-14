@@ -26,7 +26,10 @@ $api->version('v1', [
         'expires' => config('api.rateLimits.sign.expires'),
     ], function ($api) {
         $api->post('user', 'AuthController@store')->name('auth.register.store');
-        $api->post('authorization', 'AuthorizationController@store')->name('auth.authorization.store');
         $api->post('captchas', 'CaptchasController@store')->name('captchas.store');
+        $api->post('authorization', 'AuthorizationController@store')->name('auth.authorization.store');
+        $api->put('authorization/current', 'AuthorizationController@update')->name('auth.authorization.update');
+        $api->delete('authorization/current', 'AuthorizationController@delete')->name('auth.authorization.delete');
+
     });
 });

@@ -6,7 +6,7 @@
                 <b-card id="sign-in"
                         title="登录"
                         sub-title="登录以进行下一步操作">
-                    <b-form @reset="formReset" @submit="signIn">
+                    <b-form @reset="formReset" @submit="authorization">
                         <b-form-group id="email-group"
                                       label="Email"
                                       label-for="email"
@@ -24,9 +24,14 @@
                             <b-form-input id="password"
                                           type="password"
                                           v-model="form.password"
+                                          :state="passwordState"
                                           required
+                                          aria-describedby="password-feedback"
                                           placeholder="请输入密码">
                             </b-form-input>
+                            <b-form-invalid-feedback id="password-feedback">
+                                密码需要至少6个字符
+                            </b-form-invalid-feedback>
                         </b-form-group>
                         <b-button type="submit" variant="primary">登录</b-button>
                         <b-button type="reset" variant="default">清空</b-button>
@@ -46,15 +51,11 @@
                     email: '',
                     password: ''
                 },
-                alerts:[
-                    {
-                        type: 'danger',
-                        message: 'Error Demo'
-                    },
-                    {
-                        type: 'success',
-                        message: 'Success Demo'
-                    }
+                alerts: [
+                    // {
+                    //     type: 'danger',
+                    //     message: 'Error Demo'
+                    // },
                 ]
             }
         },
@@ -68,14 +69,26 @@
                     this.show = true
                 });
             },
-            signIn: function (evt) {
+            authorization: function (evt) {
                 evt.preventDefault();
-                console.log(this.form);
+                if (this.form.password >= 6) {
+                    this.axios.post('/authorization', this.form)
+                        .then(response => console.log(response))
+                        .catch(error => console.log(error.response.data.errors))
+                }
+            }
+        },
+        computed: {
+            passwordState: function () {
+                return this.form.password === '' ? null :
+                    this.form.password.length >= 6
             }
         }
     }
 </script>
 
 <style scoped>
-
+#sign-in{
+    margin-top: 5%;
+}
 </style>

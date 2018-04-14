@@ -21,7 +21,7 @@ class AuthController extends Controller
     {
         event(new Registered($user = $this->create($request->all())));
         $token = $this->guard()->login($user);
-        return $this->registered($user, $token);
+        return $this->registered($token);
     }
 
     protected function create(array $data)
@@ -33,14 +33,8 @@ class AuthController extends Controller
         ]);
     }
 
-    protected function registered($user, $token)
+    protected function registered($token)
     {
-        return $this->responseArray([
-            'user' => $user,
-            'token' => $token,
-            'type' => 'Bearer',
-            'expires' => $this->guard()->factory()->getTTL() * 60,
-        ],201);
-
+        return $this->responseWithToken($token);
     }
 }

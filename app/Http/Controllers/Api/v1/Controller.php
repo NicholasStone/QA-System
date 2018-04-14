@@ -14,12 +14,21 @@ class Controller extends BaseController
         return \Auth::guard('api');
     }
 
-    protected function responseArray(Array $array, int $statusCode = 201)
+    protected function responseArray(Array $array, int $statusCode = 200)
     {
         try {
             return $this->response->array($array)->setStatusCode($statusCode);
         } catch (\ErrorException $e) {
             return $this->response->errorInternal($e->getMessage());
         }
+    }
+
+    protected function responseWithToken(string $token)
+    {
+        return $this->responseArray([
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'expires_in' => \Auth::guard('api')->factory()->getTTL() * 60
+        ]);
     }
 }

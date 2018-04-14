@@ -190,11 +190,6 @@
             },
             errorHandler: function (error) {
                 this.errors = Object.assign(this.errors, error.response.data.errors);
-            },
-            clearErrors: function () {
-                for (let key of Object.keys(this.errors)) {
-                    this.errors[key] = '';
-                }
             }
         }
     }
