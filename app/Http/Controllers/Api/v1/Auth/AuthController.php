@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\Api\v1\Auth;
 
+use App\Models\User;
 use App\Http\Requests\Api\UserRequest;
-use App\User;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Api\v1\Controller;
 
 class AuthController extends Controller
@@ -20,15 +19,9 @@ class AuthController extends Controller
      */
     public function store(UserRequest $request)
     {
-        return $request->all();
         event(new Registered($user = $this->create($request->all())));
-        $this->guard()->login($user);
-        return $this->registered($user);
-    }
-
-    protected function guard()
-    {
-        return \Auth::guard();
+        $token = $this->guard()->login($user);
+        return $this->registered($user, $token);
     }
 
     protected function create(array $data)
@@ -40,13 +33,14 @@ class AuthController extends Controller
         ]);
     }
 
-    protected function registered($user)
+    protected function registered($user, $token)
     {
-        try {
-            return $this->response->array([
-                'user' => $user
-            ])->setStatusCode(201);
-        } catch (\ErrorException $e) {
-        }
+        return $this->responseArray([
+            'user' => $user,
+            'token' => $token,
+            'type' => 'Bearer',
+            'expires' => $this->guard()->factory()->getTTL() * 60,
+        ],201);
+
     }
 }

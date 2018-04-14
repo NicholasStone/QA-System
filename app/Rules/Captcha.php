@@ -8,8 +8,8 @@ use Illuminate\Contracts\Validation\Rule;
 class Captcha implements Rule
 {
 
-    protected $cache = [];
     protected $request = null;
+
     /**
      * @var int $inValidFlag
      *
@@ -35,6 +35,7 @@ class Captcha implements Rule
     {
         $result = true;
         $cache = \Cache::get($captcha['key']);
+        \Cache::forget($captcha['key']);
         if (empty($cache)) {
             $result = false;
             $this->inValidFlag = 1;
