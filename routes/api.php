@@ -20,12 +20,12 @@ $api->version('v1', [
     'namespace' => 'App\Http\Controllers\Api\v1'
 ], function ($api) {
     $api->group([
-        'as' => 'auth',
         'namespace' => 'Auth',
         'middleware' => 'api.throttle',
         'limit' => config('api.rateLimits.sign.limits'),
         'expires' => config('api.rateLimits.sign.expires'),
     ], function ($api) {
-        $api->post('user', ['as' => 'register', 'uses' => 'AuthController@store']);
+        $api->post('user', 'AuthController@store')->name('auth.store');
+        $api->post('captchas', 'CaptchasController@store')->name('captchas.store');
     });
 });

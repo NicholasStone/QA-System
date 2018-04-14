@@ -46,23 +46,23 @@
                                           type="password"
                                           v-model="form.password"
                                           required
-                                          :state="states.password"
+                                          :state="passwordStates"
                                           aria-describedby="password-feedback"
                                           placeholder="请在此填写密码">
                             </b-form-input>
                             <b-form-invalid-feedback id="password-feedback">
-                                {{ errors.password }}
+                                密码需要至少6个字符
                             </b-form-invalid-feedback>
                         </b-form-group>
-                        <b-form-group id="password-repeat"
+                        <b-form-group id="password-repeat-group"
                                       label="确认密码"
                                       label-for="password"
                                       description="再次输入密码以进行确认">
                             <b-form-input id="password-repeat"
                                           type="password"
-                                          v-model="form.passwordRepeat"
+                                          v-model.lazy="form.passwordRepeat"
                                           required
-                                          :state="states.passwordRepeat"
+                                          :state="passwordRepeatStates"
                                           aria-describedby="password-repeat-feedback"
                                           placeholder="请在此再次输入密码以进行确认">
                             </b-form-input>
@@ -70,8 +70,32 @@
                                 您两次输入的密码不一致
                             </b-form-invalid-feedback>
                         </b-form-group>
+                        <b-form-group id="captcha-group"
+                                      label="验证码"
+                                      label-for="captcha"
+                                      :description="captcha.hit">
+                            <b-row>
+                                <b-col cols="9">
+                                    <b-form-input id="captcha"
+                                                  typt="text"
+                                                  v-model="form.captcha.code"
+                                                  required
+                                                  :state="captchaStates"
+                                                  placeholder="请输入验证码"
+                                                  aria-describedby="captcha-feedback">
+                                    </b-form-input>
+                                    <b-form-invalid-feedback id="captcha-feedback">
+                                        {{ errors.captcha }}
+                                    </b-form-invalid-feedback>
+                                </b-col>
+                                <b-col cols="3">
+                                    <b-button v-if="captcha.image === ''" @click="getCaptcha()">点击获取验证码</b-button>
+                                    <b-img v-else :src="captcha.image" @click="getCaptcha()" fluid></b-img>
+                                </b-col>
+                            </b-row>
+                        </b-form-group>
                         <b-button type="submit" variant="primary">注册</b-button>
-                        <b-button type="reset" variant="default">重写</b-button>
+                        <b-button typt="reset" variant="default">重写</b-button>
                     </b-form>
                 </b-card>
             </b-col>
@@ -84,20 +108,25 @@
         name: "Register",
         data() {
             return {
+                captcha: {
+                    hit: '请输入验证码以确认您不是机器人',
+                    image: ''
+                },
                 errors: {
                     name: '',
                     email: '',
                     password: '',
+                    captcha: '',
                 },
                 form: {
                     name: '',
                     email: '',
                     password: '',
                     passwordRepeat: '',
-                },
-                states: {
-                    password: null,
-                    passwordRepeat: null
+                    captcha: {
+                        key: '',
+                        code: ''
+                    }
                 }
             }
         },
@@ -109,13 +138,25 @@
                 return this.errors.email === '' ? null : false;
             },
             passwordStates: function () {
-                this.status.password = this.errors.password === '' ? null : false;
+                return this.form.password === '' ? null : this.form.password.length >= 6;
+            },
+            captchaStates: function () {
+                return this.errors.captcha === '' ? null : false;
+            },
+            passwordRepeatStates: function () {
+                if (this.form.passwordRepeat === '') {
+                    return null;
+                } else {
+                    return this.form.passwordRepeat === this.form.password;
+                }
             }
         },
         methods: {
             validate: function (evt) {
                 evt.preventDefault();
-                if (this.passwordLengthValidation() && this.repeatMatchsValidation()) {
+                if (this.form.password.length >= 6
+                    && this.form.password === this.form.passwordRepeat
+                    && this.form.captcha.code !== '') {
                     this.register();
                 }
             },
@@ -129,22 +170,31 @@
                     this.show = true
                 });
             },
-            repeatMatchsValidation: function () {
-                this.states.passwordRepeat = this.form.passwordRepeat === this.form.password;
-                return this.states.passwordRepeat;
-            },
-            passwordLengthValidation: function () {
-                this.states.password = this.form.password.length >= 6;
-                return this.states.password;
+            getCaptcha: function () {
+                if (this.form.email === '') {
+                    this.errors.email = "请先填写电子邮件";
+                } else {
+                    this.axios.post('/captchas', {email: this.form.email, name: this.form.name})
+                        .then(response => {
+                            this.form.captcha.key = response.data['captcha_key'];
+                            this.captcha.hit += "  Hit:验证码将于" + response.data['expired_at'] + "过期";
+                            this.captcha.image = response.data['captcha_image_content'];
+                        })
+                        .catch(this.errorHandler)
+                }
             },
             register: function () {
                 this.axios.post('/user', this.form)
-                    .then(response => {
-                        console.log(response);
-                    })
-                    .catch(error => {
-                        this.errors = error.response.data.errors;
-                    });
+                    .then(response => console.log(response))
+                    .catch(this.errorHandler);
+            },
+            errorHandler: function (error) {
+                this.errors = Object.assign(this.errors, error.response.data.errors);
+            },
+            clearErrors: function () {
+                for (let key of Object.keys(this.errors)) {
+                    this.errors[key] = '';
+                }
             }
         }
     }

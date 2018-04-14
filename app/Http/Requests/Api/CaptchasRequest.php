@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests\Api;
 
-use App\Rules\Captcha;
 use Dingo\Api\Http\FormRequest;
 
-class UserRequest extends FormRequest
+class CaptchasRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,10 +24,8 @@ class UserRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|min:4|max:20|unique:users',
             'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:6|max:20',
-            'captcha' => ['required', 'array', new Captcha($this)],
+            'name' => 'required|string|unique:users'
         ];
     }
 }

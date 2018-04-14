@@ -10,11 +10,20 @@ use App\Http\Controllers\Api\v1\Controller;
 
 class AuthController extends Controller
 {
+    /**
+     * @param UserRequest $request
+     * @return mixed
+     *
+     * 流程：
+     * 1. 用户点击验证码输入框，js代码检查邮箱是否填写
+     *
+     */
     public function store(UserRequest $request)
     {
+        return $request->all();
         event(new Registered($user = $this->create($request->all())));
         $this->guard()->login($user);
-        return $this->registered($request, $user);
+        return $this->registered($user);
     }
 
     protected function guard()
@@ -38,7 +47,6 @@ class AuthController extends Controller
                 'user' => $user
             ])->setStatusCode(201);
         } catch (\ErrorException $e) {
-            \Debugbar::addThrowable($e);
         }
     }
 }
