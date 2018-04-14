@@ -155,7 +155,7 @@ return [
     */
 
     'middleware' => [
-
+        \App\Http\Middleware\ApiCORSAccess::class,
     ],
 
     /*
@@ -230,4 +230,19 @@ return [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Rate Limits
+    |--------------------------------------------------------------------------
+    */
+    'rateLimits' => [
+        'access' => [
+            'expires' => env('RATE_LIMITS_EXPIRES', 1),
+            'limits' => env('RATE_LIMITS', 60),
+        ],
+        'sign' => [
+            'expires' => env('SIGN_RATE_LIMITS_EXPIRES', 1),
+            'limits' => env('SIGN_RATE_LIMITS', 10),
+        ]
+    ]
 ];
