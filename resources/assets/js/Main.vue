@@ -1,24 +1,24 @@
 <template>
-    <div id="app">
-        <navbar></navbar>
-        <b-container>
-            <router-view/>
-        </b-container>
-        <content-footer></content-footer>
-    </div>
+  <div id="app">
+    <navbar/>
+    <b-container>
+      <router-view/>
+    </b-container>
+    <content-footer/>
+  </div>
 </template>
 
 <script>
-    import ContentFooter from './components/partials/content-footer'
-    import Navbar from './components/partials/navbar'
+import ContentFooter from './components/partials/content-footer'
+import Navbar from './components/partials/navbar'
 
-    export default {
-        name: 'App',
-        components: {
-            'content-footer': ContentFooter,
-            'navbar': Navbar
-        }
-    }
+export default {
+  name: 'App',
+  components: {
+    'content-footer': ContentFooter,
+    'navbar': Navbar
+  }
+}
 </script>
 
 <style>

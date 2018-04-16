@@ -6,16 +6,20 @@ use App\Models\User;
 use App\Http\Requests\Api\UserRequest;
 use Illuminate\Auth\Events\Registered;
 use App\Http\Controllers\Api\v1\Controller;
-
+/**
+ * user as resource
+ */
 class AuthController extends Controller
 {
+
+    public function show()
+    {
+        return $this->guard()->user();
+    }
+
     /**
      * @param UserRequest $request
      * @return mixed
-     *
-     * 流程：
-     * 1. 用户点击验证码输入框，js代码检查邮箱是否填写
-     *
      */
     public function store(UserRequest $request)
     {

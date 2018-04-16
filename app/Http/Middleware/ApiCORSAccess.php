@@ -20,6 +20,9 @@ class ApiCORSAccess
             config('api.domain'),
             config('app.url'),
         ];
+        if(config('app.debug')){
+            array_push($allow_origins, 'http://localhost:8080');
+        }
         $origin = $request->server('HTTP_ORIGIN');
         \Debugbar::addMessage('HTTP_ORIGIN = ' . $origin);
         if (in_array($origin, $allow_origins)) {

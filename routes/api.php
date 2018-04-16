@@ -25,11 +25,15 @@ $api->version('v1', [
         'limit' => config('api.rateLimits.sign.limits'),
         'expires' => config('api.rateLimits.sign.expires'),
     ], function ($api) {
-        $api->post('user', 'AuthController@store')->name('auth.register.store');
+        $api->post('user', 'AuthController@store')->name('user.register');
         $api->post('captchas', 'CaptchasController@store')->name('captchas.store');
         $api->post('authorization', 'AuthorizationController@store')->name('auth.authorization.store');
-        $api->put('authorization/current', 'AuthorizationController@update')->name('auth.authorization.update');
-        $api->delete('authorization/current', 'AuthorizationController@delete')->name('auth.authorization.delete');
-
+        $api->put('authorization', 'AuthorizationController@update')->name('auth.authorization.update');
+        $api->delete('authorization', 'AuthorizationController@delete')->name('auth.authorization.delete');
+        $api->group([
+            'middleware' => 'api.auth'
+        ], function ($api){
+            $api->get('user', 'AuthController@show')->name('user.show');
+        });
     });
 });

@@ -1,17 +1,17 @@
 <template>
-    <b-container fluid>
-        <footer class="footer">
-            <div class="container">
-                <p class="text-muted text-center">一切都是命运石之门的选择</p>
-            </div>
-        </footer>
-    </b-container>
+  <b-container fluid>
+    <footer class="footer">
+      <div class="container">
+        <p class="text-muted text-center">一切都是命运石之门的选择</p>
+      </div>
+    </footer>
+  </b-container>
 </template>
 
 <script>
-    export default {
-        name: 'content-footer'
-    }
+export default {
+  name: 'ContentFooter'
+}
 </script>
 
 <style scoped>
