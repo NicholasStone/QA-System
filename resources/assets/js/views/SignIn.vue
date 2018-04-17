@@ -55,7 +55,8 @@
 </template>
 
 <script>
-// import _ from 'lodash'
+import _ from 'lodash'
+
 export default {
   name: 'SignIn',
   data () {
@@ -93,20 +94,20 @@ export default {
     authorization: function (evt) {
       evt.preventDefault()
       if (this.form.password.length >= 6) {
-        this.$store.dispatch('authorize', this.form)
+        this.$store
+          .dispatch('authorize', this.form)
           .then(() => {
-            this.$route.push('Home')
+            this.$router.push('Home')
           })
           .catch(error => {
             this.updateAlerts()
-            console.log(error)
-            // _.forEach(reject.response.data.errors, (val) => {
-            //   console.log(val)
-            //   this.alerts.push({
-            //     type: 'danger',
-            //     message: val[0]
-            //   })
-            // })
+            this.form.password = ''
+            _.forEach(error, val => {
+              this.alerts.push({
+                type: 'danger',
+                message: val
+              })
+            })
           })
       }
     }

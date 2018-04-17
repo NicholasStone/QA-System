@@ -9,8 +9,8 @@
 </template>
 
 <script>
-import ContentFooter from './components/partials/content-footer'
-import Navbar from './components/partials/navbar'
+import ContentFooter from './components/content-footer'
+import Navbar from './components/navbar'
 
 export default {
   name: 'App',
@@ -22,21 +22,21 @@ export default {
 </script>
 
 <style>
-    body, div, form, img, ul, ol, li, dl, dt, dd, form, p {
-        margin: 0;
-        padding: 0;
-        border: 0 none;
-        list-style: none outside none;
-        text-decoration: none;
-    }
+  body, div, form, img, ul, ol, li, dl, dt, dd, form, p {
+    margin: 0;
+    padding: 0;
+    border: 0 none;
+    list-style: none outside none;
+    text-decoration: none;
+  }
 
-    * {
-        border-radius: 0;
-    }
+  #app {
+    height: 100%;
+    margin-bottom: 100px; /* Margin bottom by footer height */
+    margin-top: 60px;
+  }
 
-    #app {
-        height: 100%;
-        margin-bottom: 100px; /* Margin bottom by footer height */
-        margin-top: 60px;
-    }
+  * {
+    border-radius: 0;
+  }
 </style>

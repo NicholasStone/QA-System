@@ -69,7 +69,9 @@ export default {
             commit('SET_PROFILE', response.data)
             resolve()
           })
-          .catch(error => reject(error))
+          .catch(error => {
+            reject(error)
+          })
       })
     }
   }

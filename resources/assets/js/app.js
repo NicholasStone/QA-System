@@ -7,7 +7,7 @@ import Axios from 'axios'
 // import VueAxios from 'vue-axios'
 // import vue components
 import App from './Main'
-import alert from './components/partials/alert'
+import alert from './components/alert'
 // import third party components
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'

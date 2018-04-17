@@ -2,6 +2,7 @@
   <div>
     <b-row class="justify-content-md-center">
       <b-col cols="8">
+        <alert :alerts="alerts"/>
         <b-card
           id="register"
           title="注册"
@@ -126,10 +127,12 @@
 
 <script>
 import axios from 'axios'
+
 export default {
   name: 'Register',
   data () {
     return {
+      alerts: [],
       captcha: {
         hit: '请输入验证码以确认您不是机器人',
         image: ''
@@ -207,7 +210,18 @@ export default {
     },
     register: function () {
       axios.post('/user', this.form)
-        .then(response => console.log(response))
+        .then(response => {
+          this.$store.dispatch('update', response.data)
+            .then(() => {
+              this.$router.push({name: 'Home'})
+            })
+            .catch(() => {
+              this.alerts.push({
+                type: 'danger',
+                message: '自动登录时发生错误，'
+              })
+            })
+        })
         .catch(this.errorHandler)
     },
     errorHandler: function (error) {

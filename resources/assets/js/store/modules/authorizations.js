@@ -35,10 +35,8 @@ export default {
       return new Promise((resolve, reject) => {
         Communication.post('authorization', credentials)
           .then(response => {
-            commit('SET_TOKEN', response.data.token)
-            commit('SET_EXPIRATION', response.data.expiration)
+            dispatch('update', response.data)
             TokenCookies.set(response.data.token)
-            dispatch('updateProfile')
             resolve()
           })
           .catch(error => {
@@ -57,11 +55,19 @@ export default {
       return new Promise((resolve, reject) => {
         Communication.put('authorization')
           .then(response => {
-            commit('SET_TOKEN', response.data.token)
-            commit('SET_EXPIRATION', response.data.expiration)
+            dispatch('update', response.data)
             resolve()
           })
-          .catch(error => reject(error.response.data))
+          .catch(error => reject(error))
+      })
+    },
+    update: function ({commit, dispatch}, {token, expiration}) {
+      return new Promise((resolve, reject) => {
+        dispatch('updateProfile').then(() => {
+          commit('SET_TOKEN', token)
+          commit('SET_EXPIRATION', expiration)
+          resolve()
+        }).catch(error => reject(error))
       })
     }
   }

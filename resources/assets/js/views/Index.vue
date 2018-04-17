@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import Search from './partials/search'
+import Search from '../components/search'
 
 export default {
   name: 'Index',
