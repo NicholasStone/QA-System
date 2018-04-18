@@ -4,7 +4,10 @@
       id="sign-in"
       class="justify-content-md-center">
       <b-col cols="8">
-        <alert :alerts="alerts"/>
+        <alert
+          v-for="(alert, key, index) in alerts"
+          :key="index"
+          :alerts="alert"/>
         <b-card
           title="登录"
           sub-title="登录以进行下一步操作">
@@ -65,12 +68,7 @@ export default {
         email: '',
         password: ''
       },
-      alerts: [
-        // {
-        //     type: 'danger',
-        //     message: 'Error Demo'
-        // },
-      ]
+      alerts: []
     }
   },
   computed: {
@@ -102,10 +100,13 @@ export default {
           .catch(error => {
             this.updateAlerts()
             this.form.password = ''
-            _.forEach(error, val => {
+            _.forEach(error, (val, key) => {
               this.alerts.push({
+                index: key,
+                expire: 10,
                 type: 'danger',
-                message: val
+                message: val,
+                local: true
               })
             })
           })

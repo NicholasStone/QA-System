@@ -2,16 +2,16 @@ import Cookies from 'js-cookie'
 
 const token = 'Token'
 
-function set (jwt, expires = 7) {
-  return Cookies.set(token, jwt, {expires})
+function set (jwt, type = token, expires = 7) {
+  return Cookies.set(type, jwt, {expires})
 }
 
-function get () {
-  return Cookies.get(token)
+function get (val = token) {
+  return Cookies.get(val)
 }
 
-function revoke () {
-  return Cookies.remove(token)
+function revoke (val = token) {
+  return Cookies.remove(val)
 }
 
 export default {

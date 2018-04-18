@@ -3,8 +3,8 @@ import Communication from '~/api/communication'
 
 export default {
   state: {
-    token: '',
-    expiration: '',
+    token: TokenCookies.get() ? TokenCookies.get() : '',
+    expiration: TokenCookies.get('expiration'),
     type: 'Bearer'
   },
   getters: {
@@ -36,10 +36,12 @@ export default {
         Communication.post('authorization', credentials)
           .then(response => {
             dispatch('update', response.data)
-            TokenCookies.set(response.data.token)
+            dispatch('addMessage', {message: '登录成功', type: 'success'})
             resolve()
           })
           .catch(error => {
+            console.log('Error in authorization')
+            console.log(error)
             reject(error)
           })
       })
@@ -63,11 +65,16 @@ export default {
     },
     update: function ({commit, dispatch}, {token, expiration}) {
       return new Promise((resolve, reject) => {
+        commit('SET_TOKEN', token)
+        commit('SET_EXPIRATION', expiration)
+        TokenCookies.set(token)
+        TokenCookies.set(expiration, 'expiration')
         dispatch('updateProfile').then(() => {
-          commit('SET_TOKEN', token)
-          commit('SET_EXPIRATION', expiration)
           resolve()
-        }).catch(error => reject(error))
+        }).catch(error => {
+          console.log('error in update')
+          reject(error)
+        })
       })
     }
   }

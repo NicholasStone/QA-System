@@ -155,7 +155,7 @@ return [
     */
 
     'middleware' => [
-        \App\Http\Middleware\ApiCORSAccess::class,
+        // \App\Http\Middleware\ApiCORSAccess::class,
     ],
 
     /*

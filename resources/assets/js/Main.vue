@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <navbar/>
+    <messages/>
     <b-container>
       <router-view/>
     </b-container>
@@ -11,12 +12,14 @@
 <script>
 import ContentFooter from './components/content-footer'
 import Navbar from './components/navbar'
+import Messages from './components/message'
 
 export default {
   name: 'App',
   components: {
     'content-footer': ContentFooter,
-    'navbar': Navbar
+    'navbar': Navbar,
+    'messages': Messages
   }
 }
 </script>

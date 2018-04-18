@@ -2,7 +2,10 @@
   <div>
     <b-row class="justify-content-md-center">
       <b-col cols="8">
-        <alert :alerts="alerts"/>
+        <alert
+          v-for="(alert, key, index) in alerts"
+          :key="index"
+          :alerts="alert"/>
         <b-card
           id="register"
           title="注册"
@@ -24,7 +27,9 @@
                 aria-describedby="name-feedback"
                 placeholder="请填写您的昵称"/>
               <b-form-invalid-feedback id="name-feedback">
-                {{ errors.name }}
+                <span
+                  v-for="(error, key, index) in errors.name"
+                  :key="index">{{ error }}</span>
               </b-form-invalid-feedback>
             </b-form-group>
             <b-form-group
@@ -41,7 +46,9 @@
                 aria-describedby="email-feedback"
                 placeholder="请填写您的电子邮件"/>
               <b-form-invalid-feedback id="email-feedback">
-                {{ errors.email }}
+                <span
+                  v-for="(error, key, index) in errors.email"
+                  :key="index">{{ error }}</span>
               </b-form-invalid-feedback>
             </b-form-group>
             <b-form-group
@@ -213,7 +220,8 @@ export default {
         .then(response => {
           this.$store.dispatch('update', response.data)
             .then(() => {
-              this.$router.push({name: 'Home'})
+              this.$store.dispatch('addMessage', {message: '登录成功', type: 'success'})
+              this.$router.push('Home')
             })
             .catch(() => {
               this.alerts.push({

@@ -32,16 +32,27 @@
             type="submit">Search
           </b-button>
         </b-nav-form>
-        <b-nav-item :to="{ name: 'Register'}">注册</b-nav-item>
-        <b-nav-item :to="{ name: 'Sign-in'}">登录</b-nav-item>
-        <b-nav-item-dropdown right>
+        <b-nav-item
+          v-if="!authorized"
+          :to="{ name: 'Sign-in'}"
+          class="border-right"
+        >登录
+        </b-nav-item>
+        <b-nav-item
+          v-if="!authorized"
+          :to="{ name: 'Register'}"
+        >
+          注册
+        </b-nav-item>
+        <b-nav-item-dropdown
+          v-if="authorized"
+          right>
           <!-- Using button-content slot -->
           <template slot="button-content">
-            <em>User</em>
+            <em>{{ name }}</em>
           </template>
-          <b-dropdown-item :to="{ name: 'Register'}">注册</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'Home'}">主页</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'Sign-in'}">登录</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'Profile'}">个人信息</b-dropdown-item>
         </b-nav-item-dropdown>
       </b-navbar-nav>
     </b-collapse>
@@ -60,6 +71,14 @@ export default {
       path: this.$route.path
     }
   },
+  computed: {
+    authorized: function () {
+      return this.$store.getters.token !== ''
+    },
+    name: function () {
+      return this.$store.getters.name
+    }
+  },
   watch: {
     '$route.path' (val) {
       this.index = val === '/'
@@ -74,5 +93,8 @@ export default {
 </script>
 
 <style scoped>
-
+  .divider {
+    width: 2px;
+    background-color: gray();
+  }
 </style>
