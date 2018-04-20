@@ -11,9 +11,7 @@
 |
 */
 
-Route::any('/', function () {
-    return view('index');
-});
+Route::any('/', 'HomeController@index');
 
 
 Route::group(['prefix' => 'admin'], function () {

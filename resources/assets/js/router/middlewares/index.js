@@ -3,9 +3,9 @@ import RedirectIfUnauthenticated from './RedirectIfUnauthenticated'
 import UpdateProfile from './UpdateProfile'
 
 const middleware = [
+  UpdateProfile,
   RedirectIfAuthenticated,
-  RedirectIfUnauthenticated,
-  UpdateProfile
+  RedirectIfUnauthenticated
 ]
 
 export default function (to, from, next) {

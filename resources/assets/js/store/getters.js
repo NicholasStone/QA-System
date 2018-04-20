@@ -1,6 +1,6 @@
 export default {
   authentication: state => state.authorization.getters.authorization,
-  authorized: state => state.authorization.getters.authorized,
+  authenticated: state => state.authorization.getters.authenticated,
   token: state => state.authorization.getters.token,
   profile: state => state.profile.getters.profile,
   role: state => state.profile.getters.role,

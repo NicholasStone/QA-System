@@ -5,7 +5,7 @@ import Communication from '~/api/communication'
 export default {
   state: {
     token: TokenCookies.get() ? TokenCookies.get() : '',
-    expiration: TokenCookies.get('expiration'),
+    expiration: TokenCookies.get('expiration') ? TokenCookies.get('expiration') : '',
     type: 'Bearer'
   },
   getters: {
@@ -18,7 +18,7 @@ export default {
     expiration: state => {
       return state.expiration
     },
-    authorized: state => {
+    authenticated: state => {
       return !_.isEmpty(state.token)
     }
   },

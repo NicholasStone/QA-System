@@ -1,13 +1,7 @@
 import Store from '~/store'
 
 function RedirectIfUnauthenticated (to, from) {
-  // router name
-  let except = [
-    'Sign-in', 'Register', 'Index'
-  ]
-
-  if (!Store.getters.authoried &&
-    !except.includes(from.name)) {
+  if (to.matched.some(router => router.meta.auth) && !Store.getters.authenticated) {
     return {
       name: 'Sign-in', query: {redirect: to.fullPath}
     }

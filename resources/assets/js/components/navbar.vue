@@ -32,29 +32,34 @@
             type="submit">Search
           </b-button>
         </b-nav-form>
+      </b-navbar-nav>
+      <b-navbar-nav
+        v-if="authenticated"
+        class="ml-auto">
+        <b-nav-item-dropdown
+          right>
+          <!-- Using button-content slot -->
+          <template slot="button-content">
+            <em>{{ name }}</em>
+            <!--<b-img :src="avatar"/>-->
+          </template>
+          <b-dropdown-item :to="{ name: 'Home'}">主页</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'Profile'}">个人信息</b-dropdown-item>
+        </b-nav-item-dropdown>
+      </b-navbar-nav>
+      <b-navbar-nav
+        v-else
+        class="ml-auto">
         <b-nav-item
-          v-if="!authorized"
           :to="{ name: 'Sign-in'}"
           class="border-right"
         >登录
         </b-nav-item>
         <b-nav-item
-          v-if="!authorized"
           :to="{ name: 'Register'}"
         >
           注册
         </b-nav-item>
-        <b-nav-item-dropdown
-          v-if="authorized"
-          right>
-          <!-- Using button-content slot -->
-          <template slot="button-content">
-            <!--<em>{{ name }}</em>-->
-            <b-img :src="avatar"/>
-          </template>
-          <b-dropdown-item :to="{ name: 'Home'}">主页</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'Profile'}">个人信息</b-dropdown-item>
-        </b-nav-item-dropdown>
       </b-navbar-nav>
     </b-collapse>
   </b-navbar>
@@ -63,7 +68,7 @@
 
 <script>
 import {mapGetters} from 'vuex'
-import Config from '~/config'
+// import Config from '~/config'
 
 export default {
   name: 'Navbar',
@@ -77,11 +82,8 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'name', 'authorized'
-    ]),
-    avatar: function () {
-      return Config.api + this.$store.getters.avatar
-    }
+      'name', 'authenticated'
+    ])
   },
   watch: {
     '$route.path' (val) {
