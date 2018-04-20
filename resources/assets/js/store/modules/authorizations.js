@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import TokenCookies from '~/utils/tokenCookies'
 import Communication from '~/api/communication'
 
@@ -16,6 +17,9 @@ export default {
     },
     expiration: state => {
       return state.expiration
+    },
+    authorized: state => {
+      return !_.isEmpty(state.token)
     }
   },
   mutations: {
@@ -72,7 +76,7 @@ export default {
         dispatch('updateProfile').then(() => {
           resolve()
         }).catch(error => {
-          console.log('error in update')
+          dispatch('addMessage', {type: 'danger', message: '用户信息更新失败，请登录'})
           reject(error)
         })
       })

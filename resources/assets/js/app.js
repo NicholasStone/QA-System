@@ -4,7 +4,6 @@ import store from './store'
 // import from node_modules
 import Vue from 'vue'
 import Axios from 'axios'
-// import VueAxios from 'vue-axios'
 // import vue components
 import App from './Main'
 import alert from './components/alert'
@@ -12,8 +11,10 @@ import alert from './components/alert'
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+// import config
+import config from './config'
 
-Axios.defaults.baseURL = 'http://api.qa.dev'
+Axios.defaults.baseURL = config.apiUrl
 Axios.defaults.headers.common['Accept'] = 'application/prs.qa.v1+json'
 
 Vue.use(BootstrapVue)

@@ -49,7 +49,8 @@
           right>
           <!-- Using button-content slot -->
           <template slot="button-content">
-            <em>{{ name }}</em>
+            <!--<em>{{ name }}</em>-->
+            <b-img :src="avatar"/>
           </template>
           <b-dropdown-item :to="{ name: 'Home'}">主页</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'Profile'}">个人信息</b-dropdown-item>
@@ -61,6 +62,9 @@
 </template>
 
 <script>
+import {mapGetters} from 'vuex'
+import Config from '~/config'
+
 export default {
   name: 'Navbar',
   data () {
@@ -72,11 +76,11 @@ export default {
     }
   },
   computed: {
-    authorized: function () {
-      return this.$store.getters.token !== ''
-    },
-    name: function () {
-      return this.$store.getters.name
+    ...mapGetters([
+      'name', 'authorized'
+    ]),
+    avatar: function () {
+      return Config.api + this.$store.getters.avatar
     }
   },
   watch: {
