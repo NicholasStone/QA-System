@@ -35,7 +35,7 @@ class Captcha implements Rule
     {
         $result = true;
         $cache = \Cache::get($captcha['key']);
-        \Cache::forget($captcha['key']);
+        // \Cache::forget($captcha['key']);
         if (empty($cache)) {
             $result = false;
             $this->inValidFlag = 1;

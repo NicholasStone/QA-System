@@ -17,7 +17,6 @@ class ApiCORSAccess
     {
         $response = $next($request);
         $allow_origins = [
-            'http://api.qa.dev',
             'http://localhost:8080'
         ];
         $origin = $request->server('HTTP_ORIGIN');
