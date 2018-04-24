@@ -6,6 +6,13 @@ use Illuminate\Notifications\Notifiable;
 use \Illuminate\Contracts\Auth\Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
+/**
+ * @property integer id
+ * @property string verification
+ * @property string name
+ * @property string email
+ * @property string avatar
+ */
 class User extends \TCG\Voyager\Models\User implements JWTSubject, Authenticatable
 {
     use Notifiable;
@@ -16,7 +23,7 @@ class User extends \TCG\Voyager\Models\User implements JWTSubject, Authenticatab
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'avatar'
     ];
 
     /**

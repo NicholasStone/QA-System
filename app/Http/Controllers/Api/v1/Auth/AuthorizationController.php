@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1\Auth;
 
+use App\Http\Controllers\Api\v1\Auth\Traits\TokenResponse;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Tymon\JWTAuth\JWTAuth;
@@ -10,6 +11,8 @@ use App\Http\Requests\Api\AuthorizationRequest;
 
 class AuthorizationController extends Controller
 {
+    use TokenResponse;
+
     protected $auth = null;
 
     public function __construct(JWTAuth $auth)
@@ -21,6 +24,7 @@ class AuthorizationController extends Controller
      * @param AuthorizationRequest $request
      *
      * 登录验证
+     * @return Response
      */
     public function store(AuthorizationRequest $request)
     {

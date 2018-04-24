@@ -27,14 +27,10 @@ class CaptchasController extends Controller
             'code' => $captcha->getPhrase(),
         ], $expiredAt);
 
-        try {
-            return $this->response->array([
-                'captcha_key' => $key,
-                'expired_at' => $expiredAt->toDateTimeString(),
-                'captcha_image_content' => $captcha->inline(),
-            ])->setStatusCode(201);
-        } catch (\ErrorException $e) {
-            return $e;
-        }
+        return $this->responseArray([
+            'captcha_key' => $key,
+            'expired_at' => $expiredAt->toDateTimeString(),
+            'captcha_image_content' => $captcha->inline(),
+        ], 201);
     }
 }

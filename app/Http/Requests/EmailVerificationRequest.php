@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api;
+namespace App\Http\Requests;
 
-use Dingo\Api\Http\FormRequest;
+use Illuminate\Foundation\Http\FormRequest;
 
-class ImageRequest extends FormRequest
+class EmailVerificationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,7 @@ class ImageRequest extends FormRequest
     public function rules()
     {
         return [
-            'type' => 'required|string|in:avatar,exam',
-            'image' => 'required|mimetypes:image/gif,image/png,image/jpeg,image/bmp|dimensions:min_width=200,min_height=200',
+            'v' => 'required'
         ];
     }
 }

@@ -13,6 +13,13 @@
 
 Route::any('/', 'HomeController@index');
 
+Route::get('/mailable', function () {
+    $user = \App\Models\User::findOrFail(1);
+
+    return new \App\Mail\Verification($user);
+});
+
+Route::get('mail', 'Auth\EmailController@verify')->name('email.verify');
 
 Route::group(['prefix' => 'admin'], function () {
     Voyager::routes();
