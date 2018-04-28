@@ -1,4 +1,5 @@
 import Communication from '~/api/communication'
+import _ from 'lodash'
 
 export default {
   state: {
@@ -6,47 +7,46 @@ export default {
     name: '',
     email: '',
     avatar: '',
-    role: '',
+    role: 0,
     created: '',
-    updated: ''
+    updated: '',
+    introduction: ''
   },
   getters: {
-    id: state => {
-      return state.id
-    },
-    name: state => {
-      return state.name
-    },
-    email: state => {
-      return state.email
-    },
-    avatar: state => {
-      return state.avatar
-    },
-    role: state => {
-      return state.role
-    },
-    created: state => {
-      return state.created
-    },
-    updated: state => {
-      return state.updated
-    },
-    profile: ({id, name, email, avatar, role, created, updated}) => {
-      return {id, name, email, avatar, role, created, updated}
+    id: state => state.id,
+    name: state => state.name,
+    email: state => state.email,
+    avatar: state => state.avatar,
+    role: state => state.role,
+    created: state => state.created,
+    updated: state => state.updated,
+    introduction: state => state.introduction,
+    profile: ({id, name, email, avatar, role, created, updated, introduction}) => {
+      return {id, name, email, avatar, role, created, updated, introduction}
     }
   },
   mutations: {
     'SET_EMAIL': (state, email) => {
-      state.email = email
+      if (!_.isEmpty(email)) {
+        state.email = email
+      }
     },
     'SET_NAME': (state, name) => {
-      state.name = name
+      if (!_.isEmpty(name)) {
+        state.name = name
+      }
     },
     'SET_AVATAR': (state, avatar) => {
-      state.avatar = avatar
+      if (!_.isEmpty(avatar)) {
+        state.avatar = avatar
+      }
     },
-    'SET_PROFILE': (state, {id, name, email, avatar, role_id: role, created_at: created, updated_at: updated}) => {
+    'SET_INTRODUCTION': (state, introduction) => {
+      if (!_.isEmpty(introduction)) {
+        state.introduction = introduction
+      }
+    },
+    'SET_PROFILE': (state, {id, name, email, avatar, role, created, updated, introduction}) => {
       state.id = id
       state.name = name
       state.email = email
@@ -54,6 +54,7 @@ export default {
       state.role = role
       state.created = created
       state.updated = updated
+      state.introduction = introduction
     },
     'CLEAR_PROFILE': state => {
       Object.keys(state).forEach(key => {
@@ -62,7 +63,7 @@ export default {
     }
   },
   actions: {
-    updateProfile ({commit}) {
+    getProfile ({commit}) {
       return new Promise((resolve, reject) => {
         Communication.get('/user')
           .then(response => {
@@ -73,6 +74,31 @@ export default {
             reject(error)
           })
       })
+    },
+    updateProfile ({commit, dispatch}, profile) {
+      return new Promise((resolve, reject) => {
+        let update = {}
+        _.each(profile, function (value, key) {
+          if (!_.isEmpty(value)) {
+            update[key] = value
+          }
+        })
+        Communication.patch('/user', update)
+          .then(response => {
+            commit('SET_NAME', profile.name)
+            commit('SET_INTRODUCTION', profile.introduction)
+            dispatch('success', '您的个人信息已更新完毕')
+            console.log(response)
+          })
+          .catch(error => {
+            dispatch('except', '更新个人信息时出现问题')
+            console.log(error)
+            reject(error)
+          })
+      })
+    },
+    deleteProfile ({commit}) {
+      commit('CLEAR_PROFILE')
     }
   }
 }

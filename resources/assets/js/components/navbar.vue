@@ -43,8 +43,9 @@
             <em>{{ name }}</em>
             <!--<b-img :src="avatar"/>-->
           </template>
-          <b-dropdown-item :to="{ name: 'Home'}">主页</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'Profile'}">个人信息</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'Home'}"> 主页</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'Profile'}"> 个人信息</b-dropdown-item>
+          <b-dropdown-item @click="signOut"> 登出</b-dropdown-item>
         </b-nav-item-dropdown>
       </b-navbar-nav>
       <b-navbar-nav
@@ -67,7 +68,7 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
+import {mapGetters, mapActions} from 'vuex'
 // import Config from '~/config'
 
 export default {
@@ -94,6 +95,11 @@ export default {
   created: function () {
     this.index = this.path === '/'
     this.variant = this.path === '/' ? 'fate' : 'light'
+  },
+  methods: {
+    ...mapActions({
+      signOut: 'revoke'
+    })
   }
 }
 </script>

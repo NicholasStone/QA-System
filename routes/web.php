@@ -11,13 +11,7 @@
 |
 */
 
-Route::any('/', 'HomeController@index');
-
-Route::get('/mailable', function () {
-    $user = \App\Models\User::findOrFail(1);
-
-    return new \App\Mail\Verification($user);
-});
+//Route::any('/', 'HomeController@index')->name('index');
 
 Route::get('mail', 'Auth\EmailController@verify')->name('email.verify');
 
@@ -25,24 +19,8 @@ Route::group(['prefix' => 'admin'], function () {
     Voyager::routes();
 });
 
-Route::redirect('/sign-in', '/');
-
 //Auth::routes();
 
-// Authentication Routes...
-Route::get('login', 'Auth\LoginController@showLoginForm')->name('login');
-Route::post('login', 'Auth\LoginController@login');
-Route::post('logout', 'Auth\LoginController@logout')->name('logout');
-
-// Registration Routes...
-Route::get('register', 'Auth\RegisterController@showRegistrationForm')->name('register');
-Route::post('register', 'Auth\RegisterController@register');
-
-// Password Reset Routes...
-Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
-Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
-Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
-Route::post('password/reset', 'Auth\ResetPasswordController@reset');
-
-Route::get('/home', 'HomeController@index')->name('home');
-Route::get('/index', 'HomeController@frontend')->name('index');
+Route::get('/{vue_capture?}', function () {
+    return view('index');
+})->where('vue_capture', '[\/\w\.-]*')->name('index');

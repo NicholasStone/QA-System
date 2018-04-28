@@ -176,7 +176,7 @@ export default {
       return this.errors.captcha === '' ? null : false
     },
     passwordRepeatStates: function () {
-      if (this.form.passwordRepeat === '') {
+      if (this.form.passwordRepeat === '' || this.form.passwordRepeat.length < 6) {
         return null
       } else {
         return this.form.passwordRepeat === this.form.password
@@ -212,7 +212,9 @@ export default {
             this.captcha.hit += '  Hit:验证码将于' + response.data['expired_at'] + '过期'
             this.captcha.image = response.data['captcha_image_content']
           })
-          .catch(this.errorHandler)
+          .catch(response => {
+            console.log(response)
+          })
       }
     },
     register: function () {

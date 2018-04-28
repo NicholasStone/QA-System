@@ -50,21 +50,15 @@ export default {
           })
       })
     },
-    revoke: ({commit}) => {
+    revoke: ({commit, dispatch}) => {
       return new Promise(resolve => {
         commit('CLEAR_AUTHORIZATION')
+        dispatch('deleteProfile')
         TokenCookies.revoke()
-        resolve()
-      })
-    },
-    refresh: ({commit, dispatch}) => {
-      return new Promise((resolve, reject) => {
-        Communication.put('authorization')
-          .then(response => {
-            dispatch('update', response.data)
+        Communication.delete('authorization')
+          .then(() => {
             resolve()
           })
-          .catch(error => reject(error))
       })
     },
     update: function ({commit, dispatch}, {token, expiration}) {
@@ -73,7 +67,7 @@ export default {
         commit('SET_EXPIRATION', expiration)
         TokenCookies.set(token)
         TokenCookies.set(expiration, 'expiration')
-        dispatch('updateProfile').then(() => {
+        dispatch('getProfile').then(() => {
           resolve()
         }).catch(error => {
           dispatch('addMessage', {type: 'danger', message: '用户信息更新失败，请登录'})
@@ -81,5 +75,15 @@ export default {
         })
       })
     }
+    // refresh: ({commit, dispatch}) => {
+    //   return new Promise((resolve, reject) => {
+    //     Communication.put('authorization')
+    //       .then(response => {
+    //         dispatch('update', response.data)
+    //         resolve()
+    //       })
+    //       .catch(error => reject(error))
+    //   })
+    // },
   }
 }

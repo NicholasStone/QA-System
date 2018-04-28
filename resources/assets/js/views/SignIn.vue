@@ -86,7 +86,7 @@ export default {
         this.show = true
       })
     },
-    updateAlerts: function () {
+    clearAlerts: function () {
       this.alerts.length = 0
     },
     authorization: function (evt) {
@@ -98,16 +98,10 @@ export default {
             this.$router.push('Home')
           })
           .catch(error => {
-            this.updateAlerts()
+            this.clearAlerts()
             this.form.password = ''
             _.forEach(error, (val, key) => {
-              this.alerts.push({
-                index: key,
-                expire: 10,
-                type: 'danger',
-                message: val,
-                local: true
-              })
+              this.alerts.push({index: key, expire: 10, type: 'danger', message: val, local: true})
             })
           })
       }

@@ -34,11 +34,11 @@ class Verification extends Mailable
     {
         $arr = [
             'id' => $this->user->id,
-            'verification' => $this->user->verification,
+            'code' => $this->user->verification,
             'expire' => now()->addDays(15)
         ];
 
         $url = route('email.verify', ['v' => encrypt($arr)]);
-        return $this->view('mail.auth.verification')->with('url', $url);
+        return $this->view('mail.verification')->with('url', $url);
     }
 }

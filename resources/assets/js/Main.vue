@@ -42,4 +42,8 @@ export default {
   * {
     border-radius: 0;
   }
+
+  body{
+    font-family: Raleway Helvetica, Tahoma, Arial, STXihei, "华文细黑", Heiti, "黑体", "Microsoft YaHei", "微软雅黑", SimSun, "宋体", sans-serif;
+  }
 </style>

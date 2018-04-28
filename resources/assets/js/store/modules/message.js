@@ -40,6 +40,26 @@ export default {
         commit('READ', index)
         resolve()
       })
+    },
+    except: function ({commit, state}, message) {
+      commit('ADD_MESSAGE', {
+        index: state.index,
+        type: 'danger',
+        message,
+        expire: 10,
+        read: false,
+        local: false
+      })
+    },
+    success: function ({commit, state}, message) {
+      commit('ADD_MESSAGE', {
+        index: state.index,
+        type: 'success',
+        message,
+        expire: 10,
+        read: false,
+        local: false
+      })
     }
   }
 }

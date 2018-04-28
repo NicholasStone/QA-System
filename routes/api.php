@@ -34,10 +34,11 @@ $api->version('v1', [
             $api->put('authorization', 'AuthorizationController@update')->name('authorization.update');
             $api->delete('authorization', 'AuthorizationController@delete')->name('authorization.delete');
             $api->get('user', ['middleware' => 'api.auth', 'uses' => 'UserController@show'])->name('user.show');
-            $api->patch('user', ['middleware' => 'api.auth', 'uses' => 'UserController@upate'])->name('user.update');
+            $api->patch('user', ['middleware' => 'api.auth', 'uses' => 'UserController@update'])->name('user.update');
         });
         $api->group(['middleware' => 'api.auth'], function ($api){
             $api->post('image', 'ImageController@store')->name('image.store');
+            $api->post('mail', 'EmailController@show')->name('email.show');
         });
 
     });

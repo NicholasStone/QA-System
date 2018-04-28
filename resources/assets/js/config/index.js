@@ -1,4 +1,4 @@
 export default {
-  appUrl: 'http://qa.dev/',
-  apiUrl: 'http://api.qa.dev/'
+  appUrl: 'https://qa.dev/',
+  apiUrl: 'https://api.qa.dev/'
 }

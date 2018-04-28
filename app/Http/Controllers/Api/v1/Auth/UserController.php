@@ -33,7 +33,8 @@ class UserController extends Controller
     public function update(UserRequest $request)
     {
         $attribute = $request->only(['name', 'introduction']);
-        $user = $this->guard()->user();
+        // return $this->response->array($attribute);
+        $user = $this->user();
         $user->update($attribute);
         return $this->response->item($user, new UserTransformers())->setStatusCode(201);
     }

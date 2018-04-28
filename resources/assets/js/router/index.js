@@ -6,6 +6,7 @@ import Register from '../views/Register'
 import SignIn from '../views/SignIn'
 import Home from '../views/Home'
 import Profile from '../views/Profile'
+import Avatar from '../views/Avatar'
 
 Vue.use(Router)
 
@@ -24,7 +25,8 @@ const router = new Router({
       },
       children: [
         {path: 'home', name: 'Home', component: Home},
-        {path: 'profile', name: 'Profile', component: Profile}
+        {path: 'profile', name: 'Profile', component: Profile},
+        {path: 'avatar', name: 'Avatar', component: Avatar}
       ]
     }
   ]

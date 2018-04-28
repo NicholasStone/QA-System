@@ -1,8 +1,15 @@
 import axios from 'axios'
 import store from '~/store'
 import _ from 'lodash'
+import router from '~/router'
+import config from '~/config'
 
-const communicate = axios.create()
+const communicate = axios.create({
+  baseURL: config.apiUrl,
+  headers: {
+    Accept: 'application/prs.qa.v1+json'
+  }
+})
 
 communicate.interceptors.request.use(config => {
   if (store.getters.authorization) {
@@ -15,6 +22,10 @@ communicate.interceptors.request.use(config => {
 communicate.interceptors.response.use(response => {
   return Promise.resolve(response)
 }, error => {
+  if (error.response.status === 401) {
+    store.dispatch('revoke')
+      .then(router.push({name: 'Sign-in'}))
+  }
   let errors = []
   let response = error.response.data
   if (response.errors === undefined) {

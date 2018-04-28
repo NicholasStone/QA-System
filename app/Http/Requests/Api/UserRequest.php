@@ -24,6 +24,7 @@ class UserRequest extends FormRequest
      */
     public function rules()
     {
+        $rules = [];
         if ($this->method() === 'post') {
             $rules = [
                 'name' => 'required|regex:/^[A-Za-z0-9\-\_]+$|between:4,20|unique:users',
