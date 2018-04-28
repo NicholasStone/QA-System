@@ -22,7 +22,7 @@ class ImageUploadHandler
 
     public function save(UploadedFile $file, $folder, $file_prefix)
     {
-        $folder_name = 'uploads/images/' . $folder . date('Y-m/d', time());
+        $folder_name = 'storage/images/' . $folder . date('Y-m/d', time());
 
         $upload_path = public_path() . '/' . $folder_name;
 

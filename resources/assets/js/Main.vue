@@ -36,7 +36,7 @@ export default {
   #app {
     height: 100%;
     margin-bottom: 100px; /* Margin bottom by footer height */
-    margin-top: 60px;
+    margin-top: 70px;
   }
 
   * {

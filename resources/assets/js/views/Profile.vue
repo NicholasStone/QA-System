@@ -1,8 +1,8 @@
 <template>
   <b-card>
     <b-form
-      @submit="update"
-      @reset="reset">
+      @submit.stop="update"
+      @reset.stop="reset">
       <b-form-row>
         <b-col
           cols="8"
@@ -56,6 +56,24 @@
             />
           </b-form-group>
         </b-col>
+        <div class="w-100"/>
+        <b-col
+          class="text-right"
+          cols="2"
+          offset="2">
+          <p>头像</p>
+        </b-col>
+        <b-col cols="4">
+          <b-img
+            :src="profile.avatar"
+            fluid
+            class="img-thumbnail"
+            @click="redirectToAvatar"/>
+          <p class="text-muted text-center mt-auto mb-auto">
+            <small>点击更换头像</small>
+          </p>
+        </b-col>
+        <div class="w-100"/>
         <b-col offset="4">
           <b-button
             size="small"
@@ -100,21 +118,20 @@ export default {
     }
   },
   methods: {
-    update: function (evt) {
-      evt.preventDefault()
+    update: function () {
       this.$store.dispatch('updateProfile', {name: this.name, introduction: this.introduction})
         .then(this.reset())
     },
-    reset: function (evt) {
-      if (evt !== undefined) {
-        evt.preventDefault()
-      }
+    reset: function () {
       this.name = ''
       this.introduction = ''
       this.show = false
       this.$nextTick(() => {
         this.show = true
       })
+    },
+    redirectToAvatar: function () {
+      this.$router.push({name: 'Avatar'})
     }
   }
 }

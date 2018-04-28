@@ -1,4 +1,5 @@
 import Communication from '~/api/communication'
+import Config from '~/config'
 import _ from 'lodash'
 
 export default {
@@ -16,13 +17,24 @@ export default {
     id: state => state.id,
     name: state => state.name,
     email: state => state.email,
-    avatar: state => state.avatar,
+    avatar: state => {
+      return state.avatar.length === 0 ? Config.appUrl + 'storage/users/default.png' : state.avatar
+    },
     role: state => state.role,
     created: state => state.created,
     updated: state => state.updated,
     introduction: state => state.introduction,
     profile: ({id, name, email, avatar, role, created, updated, introduction}) => {
-      return {id, name, email, avatar, role, created, updated, introduction}
+      return {
+        id,
+        name,
+        email,
+        avatar: avatar.length === 0 ? Config.appUrl + 'storage/users/default.png' : avatar,
+        role,
+        created,
+        updated,
+        introduction
+      }
     }
   },
   mutations: {
@@ -99,6 +111,24 @@ export default {
     },
     deleteProfile ({commit}) {
       commit('CLEAR_PROFILE')
+    },
+    updateAvatar ({commit, dispatch}, image) {
+      return new Promise((resolve, reject) => {
+        let data = new FormData()
+        data.append('type', 'avatar')
+        data.append('image', image)
+        Communication.post('image', data, {headers: {'Content-Type': 'multipart/form-data'}})
+          .then(response => {
+            commit('SET_AVATAR', response.data.path)
+            resolve(response)
+          })
+          .catch(errors => {
+            _.forEach(errors, (val) => {
+              dispatch('except', val)
+            })
+            reject(errors)
+          })
+      })
     }
   }
 }

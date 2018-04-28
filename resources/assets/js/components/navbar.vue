@@ -35,13 +35,16 @@
       </b-navbar-nav>
       <b-navbar-nav
         v-if="authenticated"
-        class="ml-auto">
+        class="ml-2">
         <b-nav-item-dropdown
           right>
           <!-- Using button-content slot -->
           <template slot="button-content">
-            <em>{{ name }}</em>
-            <!--<b-img :src="avatar"/>-->
+            <!--<em>{{ name }}</em>-->
+            <img
+              :src="avatar"
+              :alt="name"
+              class="avatar rounded">
           </template>
           <b-dropdown-item :to="{ name: 'Home'}"> 主页</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'Profile'}"> 个人信息</b-dropdown-item>
@@ -50,15 +53,14 @@
       </b-navbar-nav>
       <b-navbar-nav
         v-else
-        class="ml-auto">
+        class="ml-2">
         <b-nav-item
           :to="{ name: 'Sign-in'}"
           class="border-right"
         >登录
         </b-nav-item>
         <b-nav-item
-          :to="{ name: 'Register'}"
-        >
+          :to="{ name: 'Register'}">
           注册
         </b-nav-item>
       </b-navbar-nav>
@@ -83,7 +85,7 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'name', 'authenticated'
+      'name', 'authenticated', 'avatar'
     ])
   },
   watch: {
@@ -105,8 +107,7 @@ export default {
 </script>
 
 <style scoped>
-  .divider {
-    width: 2px;
-    background-color: gray();
+  .avatar {
+    max-width: 50px;
   }
 </style>
