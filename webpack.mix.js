@@ -11,10 +11,20 @@ let mix = require('laravel-mix');
  |
  */
 mix.webpackConfig({
+  devtool: 'cheap-module-eval-source-map',
   resolve: {
     alias: {
-      '~': path.join(__dirname, 'resources/assets','js')
+      '~': path.join(__dirname, 'resources/assets', 'js')
     }
+  },
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        use: ["source-map-loader"],
+        enforce: "pre"
+      }
+    ]
   }
 });
 

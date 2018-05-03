@@ -1,0 +1,366 @@
+From 2f0679dd10ffd9baf2202a613746b7ec3cb0c9a1 Mon Sep 17 00:00:00 2001
+From: nicholas <Nicholas-Stone@outlook.com>
+Date: Sat, 14 Apr 2018 21:59:43 +0800
+Subject: [PATCH 04/16] =?UTF-8?q?=E5=AE=8C=E6=88=90=E7=99=BB=E5=BD=95api?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../Api/v1/Auth/AuthController.php            | 28 ++++-------
+ .../Api/v1/Auth/AuthorizationController.php   | 34 +++++++++++++
+ app/Http/Controllers/Api/v1/Controller.php    | 15 +++++-
+ .../Controllers/Auth/RegisterController.php   |  2 +-
+ .../Requests/Api/AuthorizationRequest.php     | 31 ++++++++++++
+ app/Models/User.php                           | 50 +++++++++++++++++++
+ app/Rules/Captcha.php                         |  3 +-
+ app/User.php                                  | 29 -----------
+ config/auth.php                               |  4 +-
+ config/voyager.php                            |  2 +-
+ routes/api.php                                |  3 +-
+ 11 files changed, 148 insertions(+), 53 deletions(-)
+ create mode 100644 app/Http/Controllers/Api/v1/Auth/AuthorizationController.php
+ create mode 100644 app/Http/Requests/Api/AuthorizationRequest.php
+ create mode 100644 app/Models/User.php
+ delete mode 100644 app/User.php
+
+diff --git a/app/Http/Controllers/Api/v1/Auth/AuthController.php b/app/Http/Controllers/Api/v1/Auth/AuthController.php
+index fad59ab..4189517 100644
+--- a/app/Http/Controllers/Api/v1/Auth/AuthController.php
++++ b/app/Http/Controllers/Api/v1/Auth/AuthController.php
+@@ -2,10 +2,9 @@
+ 
+ namespace App\Http\Controllers\Api\v1\Auth;
+ 
++use App\Models\User;
+ use App\Http\Requests\Api\UserRequest;
+-use App\User;
+ use Illuminate\Auth\Events\Registered;
+-use Illuminate\Http\Request;
+ use App\Http\Controllers\Api\v1\Controller;
+ 
+ class AuthController extends Controller
+@@ -20,15 +19,9 @@ class AuthController extends Controller
+      */
+     public function store(UserRequest $request)
+     {
+-        return $request->all();
+         event(new Registered($user = $this->create($request->all())));
+-        $this->guard()->login($user);
+-        return $this->registered($user);
+-    }
+-
+-    protected function guard()
+-    {
+-        return \Auth::guard();
++        $token = $this->guard()->login($user);
++        return $this->registered($user, $token);
+     }
+ 
+     protected function create(array $data)
+@@ -40,13 +33,14 @@ class AuthController extends Controller
+         ]);
+     }
+ 
+-    protected function registered($user)
++    protected function registered($user, $token)
+     {
+-        try {
+-            return $this->response->array([
+-                'user' => $user
+-            ])->setStatusCode(201);
+-        } catch (\ErrorException $e) {
+-        }
++        return $this->responseArray([
++            'user' => $user,
++            'token' => $token,
++            'type' => 'Bearer',
++            'expires' => $this->guard()->factory()->getTTL() * 60,
++        ],201);
++
+     }
+ }
+diff --git a/app/Http/Controllers/Api/v1/Auth/AuthorizationController.php b/app/Http/Controllers/Api/v1/Auth/AuthorizationController.php
+new file mode 100644
+index 0000000..17475d7
+--- /dev/null
++++ b/app/Http/Controllers/Api/v1/Auth/AuthorizationController.php
+@@ -0,0 +1,34 @@
++<?php
++
++namespace App\Http\Controllers\Api\v1\Auth;
++
++use Tymon\JWTAuth\JWTAuth;
++use App\Http\Requests\Api\AuthorizationRequest;
++use App\Http\Controllers\Api\v1\Controller;
++
++class AuthorizationController extends Controller
++{
++    protected $auth = null;
++
++    public function __construct(JWTAuth $auth)
++    {
++        $this->auth = $auth;
++    }
++
++    /**
++     * @param AuthorizationRequest $request
++     */
++    public function store(AuthorizationRequest $request)
++    {
++        if (!$token = $this->guard()->attempt($request->only(['email', 'password']))) {
++            return $this->response->errorUnauthorized('用户名或密码错误');
++        }
++
++        return $this->responseArray([
++            'token' => $token,
++            'type' => 'Bearer',
++            'expires' => $this->guard()->factory()->getTTL() * 60,
++            'user'=>\Auth::getUser(),
++        ], 201);
++    }
++}
+diff --git a/app/Http/Controllers/Api/v1/Controller.php b/app/Http/Controllers/Api/v1/Controller.php
+index 9aa5c40..3c71684 100644
+--- a/app/Http/Controllers/Api/v1/Controller.php
++++ b/app/Http/Controllers/Api/v1/Controller.php
+@@ -4,9 +4,22 @@ namespace App\Http\Controllers\Api\v1;
+ 
+ use Illuminate\Http\Request;
+ use Dingo\Api\Routing\Helpers;
+-use Barryvdh\Debugbar\Controllers\BaseController;
++use App\Http\Controllers\Controller as BaseController;
+ 
+ class Controller extends BaseController
+ {
+     use Helpers;
++
++    protected function guard(){
++        return \Auth::guard('api');
++    }
++
++    protected function responseArray(Array $array, int $statusCode = 201)
++    {
++        try {
++            return $this->response->array($array)->setStatusCode($statusCode);
++        } catch (\ErrorException $e) {
++            return $this->response->errorInternal($e->getMessage());
++        }
++    }
+ }
+diff --git a/app/Http/Controllers/Auth/RegisterController.php b/app/Http/Controllers/Auth/RegisterController.php
+index f77265a..8476051 100644
+--- a/app/Http/Controllers/Auth/RegisterController.php
++++ b/app/Http/Controllers/Auth/RegisterController.php
+@@ -2,7 +2,7 @@
+ 
+ namespace App\Http\Controllers\Auth;
+ 
+-use App\User;
++use App\Models\User;
+ use App\Http\Controllers\Controller;
+ use Illuminate\Support\Facades\Validator;
+ use Illuminate\Foundation\Auth\RegistersUsers;
+diff --git a/app/Http/Requests/Api/AuthorizationRequest.php b/app/Http/Requests/Api/AuthorizationRequest.php
+new file mode 100644
+index 0000000..8257deb
+--- /dev/null
++++ b/app/Http/Requests/Api/AuthorizationRequest.php
+@@ -0,0 +1,31 @@
++<?php
++
++namespace App\Http\Requests\Api;
++
++use Dingo\Api\Http\FormRequest;
++
++class AuthorizationRequest extends FormRequest
++{
++    /**
++     * Determine if the user is authorized to make this request.
++     *
++     * @return bool
++     */
++    public function authorize()
++    {
++        return true;
++    }
++
++    /**
++     * Get the validation rules that apply to the request.
++     *
++     * @return array
++     */
++    public function rules()
++    {
++        return [
++            'email' => 'required|email',
++            'password' => 'required|string|min:6'
++        ];
++    }
++}
+diff --git a/app/Models/User.php b/app/Models/User.php
+new file mode 100644
+index 0000000..211f58a
+--- /dev/null
++++ b/app/Models/User.php
+@@ -0,0 +1,50 @@
++<?php
++
++namespace App\Models;
++
++use Illuminate\Notifications\Notifiable;
++use \Illuminate\Contracts\Auth\Authenticatable;
++use Tymon\JWTAuth\Contracts\JWTSubject;
++
++class User extends \TCG\Voyager\Models\User implements JWTSubject, Authenticatable
++{
++    use Notifiable;
++
++    /**
++     * The attributes that are mass assignable.
++     *
++     * @var array
++     */
++    protected $fillable = [
++        'name', 'email', 'password',
++    ];
++
++    /**
++     * The attributes that should be hidden for arrays.
++     *
++     * @var array
++     */
++    protected $hidden = [
++        'password', 'remember_token',
++    ];
++
++    /**
++     * Get the identifier that will be stored in the subject claim of the JWT.
++     *
++     * @return mixed
++     */
++    public function getJWTIdentifier()
++    {
++        return $this->getKey();
++    }
++
++    /**
++     * Return a key value array, containing any custom claims to be added to the JWT.
++     *
++     * @return array
++     */
++    public function getJWTCustomClaims()
++    {
++        return [];
++    }
++}
+diff --git a/app/Rules/Captcha.php b/app/Rules/Captcha.php
+index 020a9ef..58bdfdd 100644
+--- a/app/Rules/Captcha.php
++++ b/app/Rules/Captcha.php
+@@ -8,8 +8,8 @@ use Illuminate\Contracts\Validation\Rule;
+ class Captcha implements Rule
+ {
+ 
+-    protected $cache = [];
+     protected $request = null;
++
+     /**
+      * @var int $inValidFlag
+      *
+@@ -35,6 +35,7 @@ class Captcha implements Rule
+     {
+         $result = true;
+         $cache = \Cache::get($captcha['key']);
++        \Cache::forget($captcha['key']);
+         if (empty($cache)) {
+             $result = false;
+             $this->inValidFlag = 1;
+diff --git a/app/User.php b/app/User.php
+deleted file mode 100644
+index ca55bec..0000000
+--- a/app/User.php
++++ /dev/null
+@@ -1,29 +0,0 @@
+-<?php
+-
+-namespace App;
+-
+-use Illuminate\Notifications\Notifiable;
+-use Illuminate\Foundation\Auth\User as Authenticatable;
+-
+-class User extends \TCG\Voyager\Models\User
+-{
+-    use Notifiable;
+-
+-    /**
+-     * The attributes that are mass assignable.
+-     *
+-     * @var array
+-     */
+-    protected $fillable = [
+-        'name', 'email', 'password',
+-    ];
+-
+-    /**
+-     * The attributes that should be hidden for arrays.
+-     *
+-     * @var array
+-     */
+-    protected $hidden = [
+-        'password', 'remember_token',
+-    ];
+-}
+diff --git a/config/auth.php b/config/auth.php
+index 22b9377..27d62c2 100644
+--- a/config/auth.php
++++ b/config/auth.php
+@@ -14,7 +14,7 @@ return [
+     */
+ 
+     'defaults' => [
+-        'guard' => 'web',
++        'guard' => 'api',
+         'passwords' => 'users',
+     ],
+ 
+@@ -67,7 +67,7 @@ return [
+     'providers' => [
+         'users' => [
+             'driver' => 'eloquent',
+-            'model' => App\User::class,
++            'model' => App\Models\User::class,
+         ],
+ 
+         // 'users' => [
+diff --git a/config/voyager.php b/config/voyager.php
+index 8418d6a..bf9a1ad 100644
+--- a/config/voyager.php
++++ b/config/voyager.php
+@@ -13,7 +13,7 @@ return [
+     'user' => [
+         'add_default_role_on_register' => true,
+         'default_role'                 => 'user',
+-        'namespace'                    => App\User::class,
++        'namespace'                    => App\Models\User::class,
+         'default_avatar'               => 'users/default.png',
+     ],
+ 
+diff --git a/routes/api.php b/routes/api.php
+index 3239a21..23acd63 100644
+--- a/routes/api.php
++++ b/routes/api.php
+@@ -25,7 +25,8 @@ $api->version('v1', [
+         'limit' => config('api.rateLimits.sign.limits'),
+         'expires' => config('api.rateLimits.sign.expires'),
+     ], function ($api) {
+-        $api->post('user', 'AuthController@store')->name('auth.store');
++        $api->post('user', 'AuthController@store')->name('auth.register.store');
++        $api->post('authorization', 'AuthorizationController@store')->name('auth.authorization.store');
+         $api->post('captchas', 'CaptchasController@store')->name('captchas.store');
+     });
+ });
+\ No newline at end of file
+-- 
+2.17.0
+
