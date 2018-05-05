@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $user_id
  * @property string $question
  * @property string $answer
- * @property mixed|null $options options start with 1 if it's exists
+ * @property string|null $options
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Examination[] $examination
@@ -40,7 +40,7 @@ class Question extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function type()
+    public function tag()
     {
         return $this->belongsTo(QuestionTag::class);
     }

@@ -15,7 +15,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $expire_at
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
- * @property-read \App\Models\User $user
+ * @property-read \Illuminate\Database\Eloquent\Collection|Question[] $questions
+ * @property-read User $user
  * @method static \Illuminate\Database\Eloquent\Builder|Examination whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Examination whereExpireAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Examination whereId($value)

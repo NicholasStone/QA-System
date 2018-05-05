@@ -22,8 +22,11 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
  * @property int $notification_count
  * @property string $introduction
  * @property string $verification
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Examination[] $examinations
  * @property mixed $locale
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\QuestionTag[] $questionTags
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Question[] $questions
  * @property-read \TCG\Voyager\Models\Role|null $role
  * @property-read \Illuminate\Database\Eloquent\Collection|\TCG\Voyager\Models\Role[] $roles
  * @method static \Illuminate\Database\Eloquent\Builder|User whereAvatar($value)
@@ -60,7 +63,7 @@ class User extends \TCG\Voyager\Models\User implements JWTSubject, Authenticatab
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token'
     ];
 
     /**

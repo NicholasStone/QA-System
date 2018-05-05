@@ -10,10 +10,6 @@
 |
 */
 
-//Route::middleware('auth:api')->get('/user', function (Request $request) {
-//    return $request->user();
-//});
-
 $api = app(Dingo\Api\Routing\Router::class);
 
 $api->version('v1', [
@@ -36,10 +32,15 @@ $api->version('v1', [
             $api->get('user', ['middleware' => 'api.auth', 'uses' => 'UserController@show'])->name('user.show');
             $api->patch('user', ['middleware' => 'api.auth', 'uses' => 'UserController@update'])->name('user.update');
         });
-        $api->group(['middleware' => 'api.auth'], function ($api){
+        $api->group(['middleware' => 'api.auth'], function ($api) {
             $api->post('image', 'ImageController@store')->name('image.store');
             $api->post('mail', 'EmailController@show')->name('email.show');
+            $api->group(['namespace' => 'Examination', 'prefix' => 'examination'], function ($api) {
+                $api->get('question-tag', 'QuestionTagController@index')->name('question-tag.index');
+                $api->get('question-tag/{slug}', 'QuestionTagController@show')->name('question-tag.show');
+                $api->post('question-tag', 'QuestionTagController@store')->name('question-tag.store');
+                $api->patch('question-tag', 'QuestionTagController@update')->name('question-tag.update');
+            });
         });
-
     });
 });
