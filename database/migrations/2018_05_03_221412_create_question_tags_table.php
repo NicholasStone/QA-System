@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateQuestionTypesTable extends Migration
+class CreateQuestionTagsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,15 @@ class CreateQuestionTypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('question_types', function (Blueprint $table) {
+        Schema::create('question_tags', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id');
-            $table->text('template');
+            $table->string('name')->unique();
+            $table->string('slug')->unique();
+            $table->boolean('type')->default(true); // true -> objective, false -> subjective
+            $table->tinyInteger('status')->default(0); //0 未审核, 1已过审核, -1 驳回
+            $table->string('description')->nullable();
+            $table->text('meta')->nullable();
             $table->timestamps();
         });
     }

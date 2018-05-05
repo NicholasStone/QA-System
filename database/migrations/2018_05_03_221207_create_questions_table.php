@@ -19,7 +19,7 @@ class CreateQuestionsTable extends Migration
             $table->integer('user_id');
             $table->text('question');
             $table->text('answer');
-            $table->json('options')->nullable();
+            $table->text('options')->nullable();
             $table->timestamps();
         });
     }

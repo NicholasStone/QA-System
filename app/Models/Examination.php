@@ -28,10 +28,10 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Examination extends Model
 {
-//    public function questions()
-//    {
-//        return $this->hasMany(Question::class, 'question_id');
-//    }
+    public function questions()
+    {
+        return $this->belongsToMany(Question::class, 'examination_question');
+    }
 
     public function user()
     {

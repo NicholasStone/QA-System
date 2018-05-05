@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -7,6 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 class AddIntroductionToUserTable extends Migration
 {
     protected $column = 'introduction';
+
     /**
      * Run the migrations.
      *
@@ -15,7 +15,7 @@ class AddIntroductionToUserTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string($this->column);
+            $table->string($this->column)->default('A Brief Introduction');
         });
     }
 

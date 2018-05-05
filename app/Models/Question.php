@@ -12,11 +12,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $user_id
  * @property string $question
  * @property string $answer
- * @property mixed|null $options
+ * @property mixed|null $options options start with 1 if it's exists
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Examination[] $examination
- * @property-read \App\Models\QuestionType $type
+ * @property-read \App\Models\QuestionTag $type
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereAnswer($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereCreatedAt($value)
@@ -42,6 +42,26 @@ class Question extends Model
 
     public function type()
     {
-        return $this->belongsTo(QuestionType::class);
+        return $this->belongsTo(QuestionTag::class);
+    }
+
+    public function setOptionsAttribute($value)
+    {
+        $this->attributes['options'] = serialize($value);
+    }
+
+    public function getOptionsAttribute($value)
+    {
+        return unserialize($value);
+    }
+
+    public function setAnswerAttribute($value)
+    {
+        $this->attributes['answer'] = serialize($value);
+    }
+
+    public function getAnswerAttribute($value)
+    {
+        return unserialize($value);
     }
 }

@@ -82,4 +82,19 @@ class User extends \TCG\Voyager\Models\User implements JWTSubject, Authenticatab
     {
         return [];
     }
+
+    public function questions()
+    {
+        return $this->hasMany(Question::class);
+    }
+
+    public function examinations()
+    {
+        return $this->hasMany(Examination::class);
+    }
+
+    public function questionTags()
+    {
+        return $this->hasMany(QuestionTag::class);
+    }
 }
