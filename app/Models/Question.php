@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
  * App\Models\Question
  *
  * @property int $id
- * @property int $type_id
+ * @property int $tag_id
  * @property int $user_id
  * @property string $question
  * @property string $answer
@@ -23,13 +23,15 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereOptions($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereQuestion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Question whereTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Question whereTagId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereUserId($value)
  * @mixin \Eloquent
  */
 class Question extends Model
 {
+    protected $fillable = ['tag_id', 'user_id', 'question', 'answer', 'options'];
+
     public function examination()
     {
         return $this->belongsToMany(Examination::class, 'examination_question');

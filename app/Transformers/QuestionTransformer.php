@@ -16,12 +16,7 @@ class QuestionTransformer extends TransformerAbstract
     {
         $data = [
             'id' => $question->id,
-            'user' => [
-                'id' => $question->user->id,
-                'name' => $question->user->name,
-                'email' => $question->user->email,
-                'avatar' => $question->user->avatar,
-            ],
+            'user' => $question->user,
             'tag' => [
                 'id' => $question->tag->id,
                 'title' => $question->tag->name,
@@ -29,11 +24,13 @@ class QuestionTransformer extends TransformerAbstract
                 'type' => $question->tag->type ? "客观题" : "主观题",
             ],
             'title' => $question->question,
+            'answer' => $question->answer,
         ];
 
         if ($question->tag->type) {
             $data['options'] = $question->options;
         }
+
         return $data;
     }
 }
