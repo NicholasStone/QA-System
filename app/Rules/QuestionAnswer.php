@@ -38,13 +38,13 @@ class QuestionAnswer implements Rule
             return true;
         }
 
-        if (!preg_match('regex:^\d+(,\d+)*$', $value)) {
+        if (!preg_match('/^\d+(,\d+)*$/', $value)) {
             return false;
         }
 
         $tag = (new QuestionTag)->find($this->request->input('tag'));
         $answer = collect(explode(',', $value));
-        $option_number = count(json_decode($this->request->input('options'))); // 选项个数
+        $option_number = collect(json_decode($this->request->input('options')))->count(); // 选项个数
 
         if (!$tag->meta['multiple']) {
             // 单选
@@ -83,6 +83,6 @@ class QuestionAnswer implements Rule
      */
     public function message()
     {
-        return '您提交的答案不服务规则';
+        return '您提交的答案不符合规则';
     }
 }

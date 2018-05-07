@@ -41,12 +41,12 @@ $api->version('v1', [
                 $api->get('question-tag', 'QuestionTagController@index')->name('question-tag.index');
                 $api->get('question-tag/{slug}', 'QuestionTagController@show')->name('question-tag.show');
                 $api->post('question-tag', 'QuestionTagController@store')->name('question-tag.store');
-                $api->patch('question-tag', 'QuestionTagController@update')->name('question-tag.update');
+                $api->patch('question-tag/{id}', 'QuestionTagController@update')->name('question-tag.update');
 
                 $api->get('question', 'QuestionController@index')->name('question.index');
                 $api->get('question/{id}', 'QuestionController@show')->name('question.show');
                 $api->post('question', 'QuestionController@store')->name('question.store');
-                $api->patch('question', 'QuestionController@update')->name('question.update');
+                $api->patch('question/{id}', 'QuestionController@update')->name('question.update');
 
                 $api->get('examination', 'ExaminationController@index')->name('question.index');
                 $api->get('examination/{id}', 'ExaminationController@show')->name('question.show');

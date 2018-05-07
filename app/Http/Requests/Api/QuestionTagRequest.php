@@ -27,16 +27,15 @@ class QuestionTagRequest extends FormRequest
             'meta' => 'json'
         ];
 
-        if ($this->method === 'post') {
+        if ($this->isMethod('post')) {
             array_push($roles, [
                 'name' => 'required|string|max:10|min:2|unique:question_tags',
                 'slug' => 'required|string|max:50|unique:question_tags',
                 'type' => 'required|number|in:0,1',
                 'description' => 'required|string|min:8',
             ]);
-        } elseif ($this->method === 'patch') {
+        } elseif ($this->isMethod('patch')) {
             array_push($roles, [
-                'id' => 'required',
                 'name' => 'string|max:10|min:2|unique:question_tags',
                 'slug' => 'string|max:50|unique:question_tags',
                 'type' => 'number|in:0,1',

@@ -24,24 +24,23 @@ class QuestionRequest extends FormRequest
      */
     public function rules()
     {
-        $rules = [
-            'options' => 'required_if:type,1|json',
-        ];
-
+        $rules = null;
         if ($this->isMethod('post')) {
-            $rules = array_merge($rules, [
-                'tag' => 'required|integer|exists:question_tags,id',
-                'type' => 'required|in:0,1',
-                'title' => 'required|string',
+            $rules = [
+                'tag' => ['required', 'integer', 'exists:question_tags,id'],
+                'type' => ['required', 'in:0,1'],
+                'question' => ['required', 'string'],
+                'options' => ['required_if:type,1', 'json'],
                 'answer' => ['required', 'string', new QuestionAnswer($this)],
-            ]);
+            ];
         } else if ($this->isMethod('patch')) {
-            $rules = array_merge($rules, [
-                'tag' => 'integer',
-                'type' => 'in:0,1',
-                'title' => 'string',
-                'answer' => 'string',
-            ]);
+            $rules = [
+                'tag' => ['integer', 'exists:question_tags,id'],
+                'type' => ['in:0,1'],
+                'question' => ['string'],
+                'options' => ['json'],
+                'answer' => ['string', new QuestionAnswer($this)],
+            ];
         }
 
         return $rules;
@@ -50,8 +49,7 @@ class QuestionRequest extends FormRequest
     public function messages()
     {
         return [
-            'options.regex' => '答案只能包含数字和英文逗号(",")',
-            'options.required_if' => ''
+            'options.required_if' => '选择题必须包含选项'
         ];
     }
 }

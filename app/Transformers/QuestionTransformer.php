@@ -15,15 +15,20 @@ class QuestionTransformer extends TransformerAbstract
     public function transform($question)
     {
         $data = [
-            'id' => $question->id,
-            'user' => $question->user,
-            'tag' => [
-                'id' => $question->tag->id,
-                'title' => $question->tag->name,
-                'slug' => $question->tag->slug,
-                'type' => $question->tag->type ? "客观题" : "主观题",
+            'id'     => $question->id,
+            'user'   => [
+                'id'     => $question->id,
+                'name'   => $question->name,
+                'avatar' => $question->avatar,
+                'email'  => $question->email,
             ],
-            'title' => $question->question,
+            'tag'    => [
+                'id'    => $question->tag->id,
+                'title' => $question->tag->name,
+                'slug'  => $question->tag->slug,
+                'type'  => $question->tag->type ? "客观题" : "主观题",
+            ],
+            'title'  => $question->question,
             'answer' => $question->answer,
         ];
 

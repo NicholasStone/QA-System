@@ -9,10 +9,7 @@ use App\Models\QuestionTag;
 use App\Transformers\QuestionTransformer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Api\v1\Controller;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 class QuestionController extends Controller
 {
@@ -21,7 +18,7 @@ class QuestionController extends Controller
 
     public function __construct(Question $question, QuestionTag $tag)
     {
-        $this->tag = $tag;
+        $this->tag      = $tag;
         $this->question = $question;
     }
 
@@ -71,22 +68,32 @@ class QuestionController extends Controller
     {
         $type = $request->input('type');
         $data = [
-            'tag_id' => $request->input('tag'),
-            'user_id' => $this->user()->id,
-            'question' => $request->input('title'),
-            'answer' => $request->input('answer'),
+            'tag_id'   => $request->input('tag'),
+            'user_id'  => $this->user()->id,
+            'question' => $request->input('question'),
+            'answer'   => explode(',', $request->input('answer')),
         ];
+
         if ($type) {
-            $options = explode(',', $request->input('options'));
-            $options = collect($options)->reject(function ($item) {
-                return !is_integer($item);
-            });
-            $data['options'] = serialize($options);
+            $options         = json_decode($request->input('options'), true);
+            $data['options'] = array_values($options);
         }
-        dd($data);
+
         $this->question->fill($data)->save();
 
         return $this->response->created();
+    }
+
+    public function update(QuestionRequest $request, int $id)
+    {
+        $question = $this->question->findOrFail($id);
+        $data     = $request->only(['tag', 'question', 'answer', 'options']);
+        if ($request->has('tag')) {
+            $data['tag_id'] = $data['tag'];
+            unset($data['tag']);
+        }
+        $question->update();
+        return $this->response->item($question, new QuestionTransformer())->statusCode(201);
     }
 
     /**
@@ -95,12 +102,11 @@ class QuestionController extends Controller
     public function questionWithUserAndTag()
     {
         return $this->question->with([
-            'tag' => function (BelongsTo $tag) {
+            'tag'  => function (BelongsTo $tag) {
                 $tag->select(['id', 'name', 'slug', 'type']);
             },
             'user' => function (BelongsTo $user) {
                 $user->select(['id', 'name', 'avatar', 'email']);
             }]);
     }
-
 }

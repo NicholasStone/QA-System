@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\v1\Examination;
 
-use App\Models\Question;
 use App\Models\QuestionTag;
 use App\Events\QuestionTagEvent;
 use App\Http\Requests\Api\QuestionTagRequest;
@@ -40,7 +39,7 @@ class QuestionTagController extends Controller
     public function store(QuestionTagRequest $request)
     {
         $tag = $request->only(['name', 'slug', 'type', 'description', 'meta']);
-        $tag['meta'] = serialize(json_decode($tag['meta']));
+        $tag['meta'] = json_decode($tag['meta']);
         $tag = array_merge($tag, [
             'user_id' => $this->user()->id,
             'status' => 0
@@ -65,18 +64,18 @@ class QuestionTagController extends Controller
      * Update the specified resource in storage.
      *
      * @param QuestionTagRequest $request
+     * @param int $id
      * @return \Dingo\Api\Http\Response
      */
-    public function update(QuestionTagRequest $request)
+    public function update(QuestionTagRequest $request, int $id)
     {
-        $id = $request->input('id');
-        $tag = $request->only(['name', 'slug', 'type', 'description', 'meta']);
-        $tag = array_merge($tag, [
-            'status' => 0
-        ]);
+        $data = $request->only(['name', 'slug', 'type', 'description', 'meta']);
+        $data['states'] = 0;
+        $data['meta'] = json_decode($data['meta']);
 
-        $this->tags->find($id)->update($tag);
-        event(new QuestionTagEvent($this->tags));
-        return $this->response->item($this->tags, new QuestionTagRequest())->statusCode(201);
+        $tag = $this->tags->findOrFail($id);
+        $tag->update($data);
+        event(new QuestionTagEvent($tag));
+        return $this->response->item($tag, new QuestionTagTransformer())->statusCode(201);
     }
 }
