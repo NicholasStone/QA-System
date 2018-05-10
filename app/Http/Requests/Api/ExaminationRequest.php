@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Api;
 
-use Dingo\Api\Http\FormRequest;
+use Illuminate\Foundation\Http\FormRequest;
 
-class QuestionIndexRequest extends FormRequest
+class ExaminationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class QuestionIndexRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return $this->user()->verification == 1;
     }
 
     /**
@@ -24,9 +24,7 @@ class QuestionIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'slug' => 'string',
-            'per_page' => 'integer',
-            'page' => 'integer'
+            //
         ];
     }
 }

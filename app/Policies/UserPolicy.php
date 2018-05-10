@@ -19,7 +19,7 @@ class UserPolicy
         //
     }
 
-    public function update(User $current, User $user)
+    public function updateProfile(User $current, User $user)
     {
         return $current->id === $user->id;
     }

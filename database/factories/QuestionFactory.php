@@ -10,7 +10,7 @@ $factory->define(\App\Models\Question::class, function (Faker $faker) use ($tags
     $tag = $tags->random();
     $options = mt_rand(3, 7);
     return [
-        'type_id' => $tag->id,
+        'tag_id' => $tag->id,
         'user_id' => $users->random()->id,
         'question' => $faker->text,
         'options' => function () use ($tag, $faker, $options) {

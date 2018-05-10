@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1\Examination;
 
-use App\Http\Requests\Api\QuestionIndexRequest;
+use App\Http\Requests\Api\PageRequest;
 use App\Http\Requests\Api\QuestionRequest;
 use App\Models\Question;
 use App\Models\QuestionTag;
@@ -16,30 +16,25 @@ class QuestionController extends Controller
     protected $question = null;
     protected $tag = null;
 
+    /**
+     * QuestionController constructor.
+     * @param Question $question
+     * @param QuestionTag $tag
+     */
     public function __construct(Question $question, QuestionTag $tag)
     {
         $this->tag      = $tag;
         $this->question = $question;
     }
 
-    public function index(QuestionIndexRequest $request)
+    /**
+     * @param PageRequest $request
+     * @return \Dingo\Api\Http\Response
+     */
+    public function index(PageRequest $request)
     {
-        $slug = $request->input('slug');
-        $page = $request->only(['per_page', 'page']);
-//        $questions = $this->question->with([
-//            'tag' => function (BelongsTo $tag) use ($slug) {
-//                $condition = [['status', '=', '1']];
-//                if (!empty($slug)) {
-//                    array_push($condition, ['slug', '=', $slug]);
-//                }
-//                $tag
-//                    ->select(['id', 'name', 'slug', 'type'])
-//                    ->where($condition);
-//            },
-//            'user' => function (BelongsTo $user) {
-//                $user->select(['id', 'name', 'avatar', 'email']);
-//            }
-//        ])
+        $slug      = $request->input('slug');
+        $page      = $request->only(['per_page', 'page']);
         $questions = $this->questionWithUserAndTag();
 
         if (!empty($slug)) {
@@ -50,12 +45,19 @@ class QuestionController extends Controller
             $questions->where('tag_id', '=', $tag->id);
 
         }
-        $questions->limit(isset($page['per_page']) ? $page['per_page'] : 10)
-            ->offset(isset($page['per_page']) ? $page['page'] * $page['per_page'] : 0);
+//        $questions->limit(isset($page['per_page']) ? $page['per_page'] : 10)
+//            ->offset(isset($page['per_page']) ? $page['page'] * $page['per_page'] : 0);
 
-        return $this->response->collection($questions->get(), new QuestionTransformer());
+        return $this->response->paginator(
+            $questions->paginate(isset($page['per_page']) ? $page['per_page'] : 15),
+            new QuestionTransformer()
+        );
     }
 
+    /**
+     * @param $id
+     * @return \Dingo\Api\Http\Response
+     */
     public function show($id)
     {
         $question = $this->questionWithUserAndTag()
@@ -64,6 +66,10 @@ class QuestionController extends Controller
         return $this->response->item($question, new QuestionTransformer());
     }
 
+    /**
+     * @param QuestionRequest $request
+     * @return \Dingo\Api\Http\Response
+     */
     public function store(QuestionRequest $request)
     {
         $type = $request->input('type');
@@ -84,6 +90,12 @@ class QuestionController extends Controller
         return $this->response->created();
     }
 
+    /**
+     * @param QuestionRequest $request
+     * @param int $id
+     * @return \Dingo\Api\Http\Response
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
     public function update(QuestionRequest $request, int $id)
     {
         $question = $this->question->findOrFail($id);
@@ -92,7 +104,8 @@ class QuestionController extends Controller
             $data['tag_id'] = $data['tag'];
             unset($data['tag']);
         }
-        $question->update();
+        $this->authorize('updateQuestion', $question);
+        $question->update($data);
         return $this->response->item($question, new QuestionTransformer())->statusCode(201);
     }
 

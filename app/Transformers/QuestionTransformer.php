@@ -38,4 +38,9 @@ class QuestionTransformer extends TransformerAbstract
 
         return $data;
     }
+
+    public function includeUser()
+    {
+        
+    }
 }

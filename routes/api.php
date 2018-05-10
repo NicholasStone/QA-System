@@ -15,7 +15,7 @@ $api = app(Router::class);
 
 $api->version('v1', [
     'namespace' => 'App\Http\Controllers\Api\v1',
-    'middleware' => 'serializer:array'
+    'middleware' => ['serializer:array', 'bindings']
 ], function (Router $api) {
     $api->group([
         'middleware' => 'api.throttle',
@@ -30,6 +30,7 @@ $api->version('v1', [
             $api->post('authorization', 'AuthorizationController@store')->name('authorization.store');
             $api->put('authorization', 'AuthorizationController@update')->name('authorization.update');
             $api->delete('authorization', 'AuthorizationController@delete')->name('authorization.delete');
+            $api->post('password/email', 'PasswordController@sendResetEmail')->name('password.email');
             $api->get('user', ['middleware' => 'api.auth', 'uses' => 'UserController@show'])->name('user.show');
             $api->patch('user', ['middleware' => 'api.auth', 'uses' => 'UserController@update'])->name('user.update');
         });
