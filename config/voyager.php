@@ -13,7 +13,7 @@ return [
     'user' => [
         'add_default_role_on_register' => true,
         'default_role'                 => 'user',
-        'namespace'                    => App\User::class,
+        'namespace'                    => App\Models\User::class,
         'default_avatar'               => 'users/default.png',
     ],
 
@@ -28,6 +28,7 @@ return [
 
     'controllers' => [
         'namespace' => 'TCG\\Voyager\\Http\\Controllers',
+//        'namespace' => 'App\\Http\\Controllers\\Voyager'
     ],
 
     /*
@@ -42,7 +43,7 @@ return [
     */
 
     'models' => [
-        //'namespace' => 'App\\',
+//        'namespace' => 'App\\Models',
     ],
 
     /*
@@ -126,14 +127,13 @@ return [
         /*
          * Select default language
          */
-        'default' => 'en',
+        'default' => 'zh-CN',
 
         /*
          * Select languages that are supported.
          */
         'locales' => [
-            'en',
-            //'pt',
+            'zh-CN',
         ],
     ],
 

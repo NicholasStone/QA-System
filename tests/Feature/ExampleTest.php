@@ -14,8 +14,13 @@ class ExampleTest extends TestCase
      */
     public function testBasicTest()
     {
-        $response = $this->get('/');
+        $response = $this->withHeaders([
+            'Accept' => 'application/prs.qa.v1+json'
+        ])->post(url('user.store'),[
+            'email'=>'admin@admin.com',
+            'password' => 'password',
+        ]);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
     }
 }

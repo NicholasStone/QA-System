@@ -2,6 +2,8 @@
 
 namespace App\Mail;
 
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -11,14 +13,16 @@ class Verification extends Mailable
 {
     use Queueable, SerializesModels;
 
+    protected $user;
+
     /**
      * Create a new message instance.
      *
-     * @return void
+     * @param User $user
      */
-    public function __construct()
+    public function __construct(User $user)
     {
-        //
+        $this->user = $user;
     }
 
     /**
@@ -28,6 +32,13 @@ class Verification extends Mailable
      */
     public function build()
     {
-        return $this->view('mail.auth.verification');
+        $arr = [
+            'id' => $this->user->id,
+            'code' => $this->user->verification,
+            'expire' => now()->addDays(15)
+        ];
+
+        $url = route('email.verify', ['v' => encrypt($arr)]);
+        return $this->view('mail.verification')->with('url', $url);
     }
 }

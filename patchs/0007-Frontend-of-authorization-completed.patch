@@ -1,0 +1,464 @@
+From c2f2b68c0a04731d3753421363c8d97e157d576d Mon Sep 17 00:00:00 2001
+From: nicholas <Nicholas-Stone@outlook.com>
+Date: Tue, 17 Apr 2018 23:15:18 +0800
+Subject: [PATCH 07/16] Frontend of authorization completed
+
+---
+ app/Http/Requests/Api/FormRequest.php         | 30 ++++++++++++++++
+ resources/assets/js/Main.vue                  | 34 +++++++++----------
+ resources/assets/js/api/communication.js      | 33 ++++++++++++++++--
+ resources/assets/js/app.js                    |  2 +-
+ .../js/components/{partials => }/alert.vue    |  4 +--
+ .../{partials => }/content-footer.vue         |  0
+ resources/assets/js/components/message.vue    | 22 ++++++++++++
+ .../js/components/{partials => }/navbar.vue   |  0
+ .../js/components/{partials => }/search.vue   |  0
+ resources/assets/js/router/index.js           |  8 ++---
+ .../assets/js/store/modules/authorizations.js | 18 ++++++----
+ resources/assets/js/store/modules/message.js  | 23 +++++++++++++
+ resources/assets/js/store/modules/profile.js  |  4 ++-
+ .../assets/js/{components => views}/Home.vue  |  0
+ .../assets/js/{components => views}/Index.vue |  2 +-
+ .../js/{components => views}/Register.vue     | 16 ++++++++-
+ .../js/{components => views}/SignIn.vue       | 23 +++++++------
+ 17 files changed, 173 insertions(+), 46 deletions(-)
+ create mode 100644 app/Http/Requests/Api/FormRequest.php
+ rename resources/assets/js/components/{partials => }/alert.vue (90%)
+ rename resources/assets/js/components/{partials => }/content-footer.vue (100%)
+ create mode 100644 resources/assets/js/components/message.vue
+ rename resources/assets/js/components/{partials => }/navbar.vue (100%)
+ rename resources/assets/js/components/{partials => }/search.vue (100%)
+ create mode 100644 resources/assets/js/store/modules/message.js
+ rename resources/assets/js/{components => views}/Home.vue (100%)
+ rename resources/assets/js/{components => views}/Index.vue (94%)
+ rename resources/assets/js/{components => views}/Register.vue (94%)
+ rename resources/assets/js/{components => views}/SignIn.vue (87%)
+
+diff --git a/app/Http/Requests/Api/FormRequest.php b/app/Http/Requests/Api/FormRequest.php
+new file mode 100644
+index 0000000..ba11148
+--- /dev/null
++++ b/app/Http/Requests/Api/FormRequest.php
+@@ -0,0 +1,30 @@
++<?php
++
++namespace App\Http\Requests\Api;
++
++use Dingo\Api\Http\FormRequest as BaseRequest;
++
++class FormRequest extends BaseRequest
++{
++    /**
++     * Determine if the user is authorized to make this request.
++     *
++     * @return bool
++     */
++    public function authorize()
++    {
++        return true;
++    }
++
++    /**
++     * Get the validation rules that apply to the request.
++     *
++     * @return array
++     */
++    public function rules()
++    {
++        return [
++            //
++        ];
++    }
++}
+diff --git a/resources/assets/js/Main.vue b/resources/assets/js/Main.vue
+index bc56aa2..e4ea6b4 100644
+--- a/resources/assets/js/Main.vue
++++ b/resources/assets/js/Main.vue
+@@ -9,8 +9,8 @@
+ </template>
+ 
+ <script>
+-import ContentFooter from './components/partials/content-footer'
+-import Navbar from './components/partials/navbar'
++import ContentFooter from './components/content-footer'
++import Navbar from './components/navbar'
+ 
+ export default {
+   name: 'App',
+@@ -22,21 +22,21 @@ export default {
+ </script>
+ 
+ <style>
+-    body, div, form, img, ul, ol, li, dl, dt, dd, form, p {
+-        margin: 0;
+-        padding: 0;
+-        border: 0 none;
+-        list-style: none outside none;
+-        text-decoration: none;
+-    }
++  body, div, form, img, ul, ol, li, dl, dt, dd, form, p {
++    margin: 0;
++    padding: 0;
++    border: 0 none;
++    list-style: none outside none;
++    text-decoration: none;
++  }
+ 
+-    * {
+-        border-radius: 0;
+-    }
++  #app {
++    height: 100%;
++    margin-bottom: 100px; /* Margin bottom by footer height */
++    margin-top: 60px;
++  }
+ 
+-    #app {
+-        height: 100%;
+-        margin-bottom: 100px; /* Margin bottom by footer height */
+-        margin-top: 60px;
+-    }
++  * {
++    border-radius: 0;
++  }
+ </style>
+diff --git a/resources/assets/js/api/communication.js b/resources/assets/js/api/communication.js
+index 2851393..f1156a6 100644
+--- a/resources/assets/js/api/communication.js
++++ b/resources/assets/js/api/communication.js
+@@ -1,7 +1,10 @@
+ import axios from 'axios'
+ import store from '~/store'
++import _ from 'lodash'
+ 
+-axios.interceptors.request.use(config => {
++const communicate = axios.create()
++
++communicate.interceptors.request.use(config => {
+   if (store.getters.authorization) {
+     config.headers['Authorization'] = store.getters.authorization
+   }
+@@ -9,5 +12,31 @@ axios.interceptors.request.use(config => {
+ }, error => {
+   console.error(error)
+ })
++communicate.interceptors.response.use(response => {
++  return Promise.resolve(response)
++}, error => {
++  let errors = []
++  let response = error.response.data
++  if (response.errors === undefined) {
++    errors.push(response.message)
++  } else {
++    errors = formatErrors(response.errors)
++  }
++  // error.response.data.errors  // error object
++  // error.response.data.message // error message
++  return Promise.reject(errors)
++})
++
++function formatErrors (err) {
++  if (_.isObject(err) || _.isArray(err)) {
++    let result = []
++    _.forEach(err, function (val) {
++      result = result.concat(formatErrors(val))
++    })
++    return result
++  } else {
++    return [err]
++  }
++}
+ 
+-export default axios
++export default communicate
+diff --git a/resources/assets/js/app.js b/resources/assets/js/app.js
+index f4effba..0ecedfa 100644
+--- a/resources/assets/js/app.js
++++ b/resources/assets/js/app.js
+@@ -7,7 +7,7 @@ import Axios from 'axios'
+ // import VueAxios from 'vue-axios'
+ // import vue components
+ import App from './Main'
+-import alert from './components/partials/alert'
++import alert from './components/alert'
+ // import third party components
+ import BootstrapVue from 'bootstrap-vue'
+ import 'bootstrap/dist/css/bootstrap.css'
+diff --git a/resources/assets/js/components/partials/alert.vue b/resources/assets/js/components/alert.vue
+similarity index 90%
+rename from resources/assets/js/components/partials/alert.vue
+rename to resources/assets/js/components/alert.vue
+index b566f12..2d79246 100644
+--- a/resources/assets/js/components/partials/alert.vue
++++ b/resources/assets/js/components/alert.vue
+@@ -4,8 +4,8 @@
+       v-for="(alert, key, index) in alerts"
+       :key="index"
+       :variant="alert.type"
+-      dismissible
+-      show>
++      :show="10"
++      dismissible>
+       {{ alert.message }}
+     </b-alert>
+   </div>
+diff --git a/resources/assets/js/components/partials/content-footer.vue b/resources/assets/js/components/content-footer.vue
+similarity index 100%
+rename from resources/assets/js/components/partials/content-footer.vue
+rename to resources/assets/js/components/content-footer.vue
+diff --git a/resources/assets/js/components/message.vue b/resources/assets/js/components/message.vue
+new file mode 100644
+index 0000000..b4a3a5d
+--- /dev/null
++++ b/resources/assets/js/components/message.vue
+@@ -0,0 +1,22 @@
++<template>
++  <div>
++    <b-alert
++      v-for="(alert, key, index) in alerts"
++      :key="index"
++      :variant="alert.type"
++      :show="10"
++      dismissible>
++      {{ alert.message }}
++    </b-alert>
++  </div>
++</template>
++
++<script>
++export default {
++  name: 'Message'
++}
++</script>
++
++<style scoped>
++
++</style>
+diff --git a/resources/assets/js/components/partials/navbar.vue b/resources/assets/js/components/navbar.vue
+similarity index 100%
+rename from resources/assets/js/components/partials/navbar.vue
+rename to resources/assets/js/components/navbar.vue
+diff --git a/resources/assets/js/components/partials/search.vue b/resources/assets/js/components/search.vue
+similarity index 100%
+rename from resources/assets/js/components/partials/search.vue
+rename to resources/assets/js/components/search.vue
+diff --git a/resources/assets/js/router/index.js b/resources/assets/js/router/index.js
+index dd2449f..7e5b457 100644
+--- a/resources/assets/js/router/index.js
++++ b/resources/assets/js/router/index.js
+@@ -1,9 +1,9 @@
+ import Vue from 'vue'
+ import Router from 'vue-router'
+-import Index from '../components/Index'
+-import Register from '../components/Register'
+-import SignIn from '../components/SignIn'
+-import Home from '../components/Home'
++import Index from '../views/Index'
++import Register from '../views/Register'
++import SignIn from '../views/SignIn'
++import Home from '../views/Home'
+ 
+ Vue.use(Router)
+ 
+diff --git a/resources/assets/js/store/modules/authorizations.js b/resources/assets/js/store/modules/authorizations.js
+index ff4359f..28da3a0 100644
+--- a/resources/assets/js/store/modules/authorizations.js
++++ b/resources/assets/js/store/modules/authorizations.js
+@@ -35,10 +35,8 @@ export default {
+       return new Promise((resolve, reject) => {
+         Communication.post('authorization', credentials)
+           .then(response => {
+-            commit('SET_TOKEN', response.data.token)
+-            commit('SET_EXPIRATION', response.data.expiration)
++            dispatch('update', response.data)
+             TokenCookies.set(response.data.token)
+-            dispatch('updateProfile')
+             resolve()
+           })
+           .catch(error => {
+@@ -57,11 +55,19 @@ export default {
+       return new Promise((resolve, reject) => {
+         Communication.put('authorization')
+           .then(response => {
+-            commit('SET_TOKEN', response.data.token)
+-            commit('SET_EXPIRATION', response.data.expiration)
++            dispatch('update', response.data)
+             resolve()
+           })
+-          .catch(error => reject(error.response.data))
++          .catch(error => reject(error))
++      })
++    },
++    update: function ({commit, dispatch}, {token, expiration}) {
++      return new Promise((resolve, reject) => {
++        dispatch('updateProfile').then(() => {
++          commit('SET_TOKEN', token)
++          commit('SET_EXPIRATION', expiration)
++          resolve()
++        }).catch(error => reject(error))
+       })
+     }
+   }
+diff --git a/resources/assets/js/store/modules/message.js b/resources/assets/js/store/modules/message.js
+new file mode 100644
+index 0000000..4596b67
+--- /dev/null
++++ b/resources/assets/js/store/modules/message.js
+@@ -0,0 +1,23 @@
++export default {
++  state: {
++    messages: [] // {type: 'danger/success/info', message: 'some message', expire: 10(s)}
++  },
++  getters: {
++    messages: function (state) {
++      return state.messages
++    }
++  },
++  mutations: {
++    'ADD_MESSAGE': function (state, message) {
++      state.messages.push(message)
++    },
++    'CLEAR_MESSAGE': function (state) {
++      state.messages.length = 0
++    }
++  },
++  actions: {
++    addMessage: function ({commit}, {message, type, expire = 10}) {
++      commit('SET_MESSAGE', {message, type, expire})
++    }
++  }
++}
+diff --git a/resources/assets/js/store/modules/profile.js b/resources/assets/js/store/modules/profile.js
+index e0a554c..2895818 100644
+--- a/resources/assets/js/store/modules/profile.js
++++ b/resources/assets/js/store/modules/profile.js
+@@ -69,7 +69,9 @@ export default {
+             commit('SET_PROFILE', response.data)
+             resolve()
+           })
+-          .catch(error => reject(error))
++          .catch(error => {
++            reject(error)
++          })
+       })
+     }
+   }
+diff --git a/resources/assets/js/components/Home.vue b/resources/assets/js/views/Home.vue
+similarity index 100%
+rename from resources/assets/js/components/Home.vue
+rename to resources/assets/js/views/Home.vue
+diff --git a/resources/assets/js/components/Index.vue b/resources/assets/js/views/Index.vue
+similarity index 94%
+rename from resources/assets/js/components/Index.vue
+rename to resources/assets/js/views/Index.vue
+index 2836af3..20cd3c8 100644
+--- a/resources/assets/js/components/Index.vue
++++ b/resources/assets/js/views/Index.vue
+@@ -14,7 +14,7 @@
+ </template>
+ 
+ <script>
+-import Search from './partials/search'
++import Search from '../components/search'
+ 
+ export default {
+   name: 'Index',
+diff --git a/resources/assets/js/components/Register.vue b/resources/assets/js/views/Register.vue
+similarity index 94%
+rename from resources/assets/js/components/Register.vue
+rename to resources/assets/js/views/Register.vue
+index b8cd3c9..4cad1c1 100644
+--- a/resources/assets/js/components/Register.vue
++++ b/resources/assets/js/views/Register.vue
+@@ -2,6 +2,7 @@
+   <div>
+     <b-row class="justify-content-md-center">
+       <b-col cols="8">
++        <alert :alerts="alerts"/>
+         <b-card
+           id="register"
+           title="注册"
+@@ -126,10 +127,12 @@
+ 
+ <script>
+ import axios from 'axios'
++
+ export default {
+   name: 'Register',
+   data () {
+     return {
++      alerts: [],
+       captcha: {
+         hit: '请输入验证码以确认您不是机器人',
+         image: ''
+@@ -207,7 +210,18 @@ export default {
+     },
+     register: function () {
+       axios.post('/user', this.form)
+-        .then(response => console.log(response))
++        .then(response => {
++          this.$store.dispatch('update', response.data)
++            .then(() => {
++              this.$router.push({name: 'Home'})
++            })
++            .catch(() => {
++              this.alerts.push({
++                type: 'danger',
++                message: '自动登录时发生错误，'
++              })
++            })
++        })
+         .catch(this.errorHandler)
+     },
+     errorHandler: function (error) {
+diff --git a/resources/assets/js/components/SignIn.vue b/resources/assets/js/views/SignIn.vue
+similarity index 87%
+rename from resources/assets/js/components/SignIn.vue
+rename to resources/assets/js/views/SignIn.vue
+index 0c23b8a..06f4217 100644
+--- a/resources/assets/js/components/SignIn.vue
++++ b/resources/assets/js/views/SignIn.vue
+@@ -55,7 +55,8 @@
+ </template>
+ 
+ <script>
+-// import _ from 'lodash'
++import _ from 'lodash'
++
+ export default {
+   name: 'SignIn',
+   data () {
+@@ -93,20 +94,20 @@ export default {
+     authorization: function (evt) {
+       evt.preventDefault()
+       if (this.form.password.length >= 6) {
+-        this.$store.dispatch('authorize', this.form)
++        this.$store
++          .dispatch('authorize', this.form)
+           .then(() => {
+-            this.$route.push('Home')
++            this.$router.push('Home')
+           })
+           .catch(error => {
+             this.updateAlerts()
+-            console.log(error)
+-            // _.forEach(reject.response.data.errors, (val) => {
+-            //   console.log(val)
+-            //   this.alerts.push({
+-            //     type: 'danger',
+-            //     message: val[0]
+-            //   })
+-            // })
++            this.form.password = ''
++            _.forEach(error, val => {
++              this.alerts.push({
++                type: 'danger',
++                message: val
++              })
++            })
+           })
+       }
+     }
+-- 
+2.17.0
+

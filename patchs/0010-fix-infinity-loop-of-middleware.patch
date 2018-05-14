@@ -1,0 +1,255 @@
+From 0ed0f976c8ef7fb78d257f81db61854d74d4812f Mon Sep 17 00:00:00 2001
+From: nicholas <Nicholas-Stone@outlook.com>
+Date: Fri, 20 Apr 2018 14:18:49 +0800
+Subject: [PATCH 10/16] fix infinity loop of middleware
+
+---
+ app/Http/Controllers/HomeController.php       |  2 +-
+ app/Http/Middleware/ApiCORSAccess.php         |  4 +-
+ resources/assets/js/components/navbar.vue     | 40 ++++++++++---------
+ .../middlewares/RedirectIfAuthenticated.js    | 16 +++++---
+ .../middlewares/RedirectIfUnauthenticated.js  |  8 +---
+ .../js/router/middlewares/UpdateProfile.js    |  5 ++-
+ .../assets/js/router/middlewares/index.js     |  4 +-
+ resources/assets/js/store/getters.js          |  2 +-
+ .../assets/js/store/modules/authorizations.js |  4 +-
+ routes/web.php                                |  4 +-
+ 10 files changed, 44 insertions(+), 45 deletions(-)
+
+diff --git a/app/Http/Controllers/HomeController.php b/app/Http/Controllers/HomeController.php
+index 059e9d9..70a7d2a 100644
+--- a/app/Http/Controllers/HomeController.php
++++ b/app/Http/Controllers/HomeController.php
+@@ -23,7 +23,7 @@ class HomeController extends Controller
+      */
+     public function index()
+     {
+-        return view('home');
++        return view('index');
+     }
+ 
+     public function frontend()
+diff --git a/app/Http/Middleware/ApiCORSAccess.php b/app/Http/Middleware/ApiCORSAccess.php
+index d7cb426..3a70a7d 100644
+--- a/app/Http/Middleware/ApiCORSAccess.php
++++ b/app/Http/Middleware/ApiCORSAccess.php
+@@ -17,12 +17,10 @@ class ApiCORSAccess
+     {
+         $response = $next($request);
+         $allow_origins = [
+-            config('api.domain'),
+-            config('app.url'),
++            'http://api.qa.dev',
+             'http://localhost:8080'
+         ];
+         $origin = $request->server('HTTP_ORIGIN');
+-        \Debugbar::addMessage('HTTP_ORIGIN = ' . $origin);
+         if (in_array($origin, $allow_origins)) {
+             $response->header('Access-Control-Allow-Origin', $origin);
+             $response->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Cookie, X-CSRF-TOKEN, Accept, Authorization, X-XSRF-TOKEN');
+diff --git a/resources/assets/js/components/navbar.vue b/resources/assets/js/components/navbar.vue
+index 93a2166..77b851b 100644
+--- a/resources/assets/js/components/navbar.vue
++++ b/resources/assets/js/components/navbar.vue
+@@ -32,29 +32,34 @@
+             type="submit">Search
+           </b-button>
+         </b-nav-form>
++      </b-navbar-nav>
++      <b-navbar-nav
++        v-if="authenticated"
++        class="ml-auto">
++        <b-nav-item-dropdown
++          right>
++          <!-- Using button-content slot -->
++          <template slot="button-content">
++            <em>{{ name }}</em>
++            <!--<b-img :src="avatar"/>-->
++          </template>
++          <b-dropdown-item :to="{ name: 'Home'}">主页</b-dropdown-item>
++          <b-dropdown-item :to="{ name: 'Profile'}">个人信息</b-dropdown-item>
++        </b-nav-item-dropdown>
++      </b-navbar-nav>
++      <b-navbar-nav
++        v-else
++        class="ml-auto">
+         <b-nav-item
+-          v-if="!authorized"
+           :to="{ name: 'Sign-in'}"
+           class="border-right"
+         >登录
+         </b-nav-item>
+         <b-nav-item
+-          v-if="!authorized"
+           :to="{ name: 'Register'}"
+         >
+           注册
+         </b-nav-item>
+-        <b-nav-item-dropdown
+-          v-if="authorized"
+-          right>
+-          <!-- Using button-content slot -->
+-          <template slot="button-content">
+-            <!--<em>{{ name }}</em>-->
+-            <b-img :src="avatar"/>
+-          </template>
+-          <b-dropdown-item :to="{ name: 'Home'}">主页</b-dropdown-item>
+-          <b-dropdown-item :to="{ name: 'Profile'}">个人信息</b-dropdown-item>
+-        </b-nav-item-dropdown>
+       </b-navbar-nav>
+     </b-collapse>
+   </b-navbar>
+@@ -63,7 +68,7 @@
+ 
+ <script>
+ import {mapGetters} from 'vuex'
+-import Config from '~/config'
++// import Config from '~/config'
+ 
+ export default {
+   name: 'Navbar',
+@@ -77,11 +82,8 @@ export default {
+   },
+   computed: {
+     ...mapGetters([
+-      'name', 'authorized'
+-    ]),
+-    avatar: function () {
+-      return Config.api + this.$store.getters.avatar
+-    }
++      'name', 'authenticated'
++    ])
+   },
+   watch: {
+     '$route.path' (val) {
+diff --git a/resources/assets/js/router/middlewares/RedirectIfAuthenticated.js b/resources/assets/js/router/middlewares/RedirectIfAuthenticated.js
+index 0c7fbbb..952e54b 100644
+--- a/resources/assets/js/router/middlewares/RedirectIfAuthenticated.js
++++ b/resources/assets/js/router/middlewares/RedirectIfAuthenticated.js
+@@ -1,13 +1,19 @@
+ import Store from '~/store'
+ 
+ function RedirectIfAuthenticated (to, from) {
+-  let routerNames = [
+-    'Register', 'Sign-in'
++  let router = [
++    '/register', '/sign-in', '/login'
+   ]
+ 
+-  if (Store.getters.authoried && routerNames.includes(to.name)) {
+-    return {
+-      name: 'Index'
++  if (Store.getters.authenticated && router.includes(to.fullPath)) {
++    if (router.includes(from.fullPath)) {
++      return {
++        path: '/'
++      }
++    } else {
++      return {
++        path: from.fullPath
++      }
+     }
+   }
+ }
+diff --git a/resources/assets/js/router/middlewares/RedirectIfUnauthenticated.js b/resources/assets/js/router/middlewares/RedirectIfUnauthenticated.js
+index 6c34d7a..f464fce 100644
+--- a/resources/assets/js/router/middlewares/RedirectIfUnauthenticated.js
++++ b/resources/assets/js/router/middlewares/RedirectIfUnauthenticated.js
+@@ -1,13 +1,7 @@
+ import Store from '~/store'
+ 
+ function RedirectIfUnauthenticated (to, from) {
+-  // router name
+-  let except = [
+-    'Sign-in', 'Register', 'Index'
+-  ]
+-
+-  if (!Store.getters.authoried &&
+-    !except.includes(from.name)) {
++  if (to.matched.some(router => router.meta.auth) && !Store.getters.authenticated) {
+     return {
+       name: 'Sign-in', query: {redirect: to.fullPath}
+     }
+diff --git a/resources/assets/js/router/middlewares/UpdateProfile.js b/resources/assets/js/router/middlewares/UpdateProfile.js
+index de5d959..87a29ac 100644
+--- a/resources/assets/js/router/middlewares/UpdateProfile.js
++++ b/resources/assets/js/router/middlewares/UpdateProfile.js
+@@ -1,7 +1,8 @@
+ import Store from '~/store'
+ 
+-export default function (to, from) {
+-  if (Store.getters.authoried && Store.getters.role.length === 0) {
++export default function () {
++  // init
++  if (Store.getters.authenticated && Store.getters.role.length === 0) {
+     Store.dispatch('updateProfile')
+   }
+ }
+diff --git a/resources/assets/js/router/middlewares/index.js b/resources/assets/js/router/middlewares/index.js
+index ec9b27c..8ca29fe 100644
+--- a/resources/assets/js/router/middlewares/index.js
++++ b/resources/assets/js/router/middlewares/index.js
+@@ -3,9 +3,9 @@ import RedirectIfUnauthenticated from './RedirectIfUnauthenticated'
+ import UpdateProfile from './UpdateProfile'
+ 
+ const middleware = [
++  UpdateProfile,
+   RedirectIfAuthenticated,
+-  RedirectIfUnauthenticated,
+-  UpdateProfile
++  RedirectIfUnauthenticated
+ ]
+ 
+ export default function (to, from, next) {
+diff --git a/resources/assets/js/store/getters.js b/resources/assets/js/store/getters.js
+index 0f466b3..5387856 100644
+--- a/resources/assets/js/store/getters.js
++++ b/resources/assets/js/store/getters.js
+@@ -1,6 +1,6 @@
+ export default {
+   authentication: state => state.authorization.getters.authorization,
+-  authorized: state => state.authorization.getters.authorized,
++  authenticated: state => state.authorization.getters.authenticated,
+   token: state => state.authorization.getters.token,
+   profile: state => state.profile.getters.profile,
+   role: state => state.profile.getters.role,
+diff --git a/resources/assets/js/store/modules/authorizations.js b/resources/assets/js/store/modules/authorizations.js
+index 029d934..9321521 100644
+--- a/resources/assets/js/store/modules/authorizations.js
++++ b/resources/assets/js/store/modules/authorizations.js
+@@ -5,7 +5,7 @@ import Communication from '~/api/communication'
+ export default {
+   state: {
+     token: TokenCookies.get() ? TokenCookies.get() : '',
+-    expiration: TokenCookies.get('expiration'),
++    expiration: TokenCookies.get('expiration') ? TokenCookies.get('expiration') : '',
+     type: 'Bearer'
+   },
+   getters: {
+@@ -18,7 +18,7 @@ export default {
+     expiration: state => {
+       return state.expiration
+     },
+-    authorized: state => {
++    authenticated: state => {
+       return !_.isEmpty(state.token)
+     }
+   },
+diff --git a/routes/web.php b/routes/web.php
+index 41b7d97..7b2b3db 100644
+--- a/routes/web.php
++++ b/routes/web.php
+@@ -11,9 +11,7 @@
+ |
+ */
+ 
+-Route::any('/', function () {
+-    return view('index');
+-});
++Route::any('/', 'HomeController@index');
+ 
+ 
+ Route::group(['prefix' => 'admin'], function () {
+-- 
+2.17.0
+
