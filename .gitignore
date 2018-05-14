@@ -1,3 +1,4 @@
+/resources/assets/js/
 /node_modules
 /public/hot
 /public/storage
@@ -13,7 +14,8 @@ yarn-error.log
 .env
 .env.*.php
 .env.php
-_ide_helper.php
 *.meta.php
 /config/debugbar.php
 *.txt
+_ide_helper.php
+/_ide_helper_models.php

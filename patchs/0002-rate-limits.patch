@@ -1,0 +1,98 @@
+From e7abba0e733b9bc4c41f3d60060409b2321460e4 Mon Sep 17 00:00:00 2001
+From: nicholas <Nicholas-Stone@outlook.com>
+Date: Sat, 14 Apr 2018 11:42:28 +0800
+Subject: [PATCH 02/16] rate limits
+
+---
+ .env.example        |  7 ++++++-
+ app/Http/Kernel.php |  2 +-
+ config/api.php      | 17 ++++++++++++++++-
+ routes/api.php      |  8 +++++++-
+ 4 files changed, 30 insertions(+), 4 deletions(-)
+
+diff --git a/.env.example b/.env.example
+index e9afa29..20a6f3f 100644
+--- a/.env.example
++++ b/.env.example
+@@ -40,4 +40,9 @@ API_PREFIX=
+ API_VERSION=
+ API_DEBUG=
+ 
+-JWT_SECRET=
+\ No newline at end of file
++JWT_SECRET=IlP23a3WASqaD3p3vuAI0bumAE4Lc9cI
++
++RATE_LIMITS_EXPIRES=1
++RATE_LIMITS=60
++SIGN_RATE_LIMITS_EXPIRES=1
++SIGN_RATE_LIMITS=10
+\ No newline at end of file
+diff --git a/app/Http/Kernel.php b/app/Http/Kernel.php
+index 7506099..5b7189c 100644
+--- a/app/Http/Kernel.php
++++ b/app/Http/Kernel.php
+@@ -19,7 +19,7 @@ class Kernel extends HttpKernel
+         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+         \App\Http\Middleware\TrimStrings::class,
+         \App\Http\Middleware\TrustProxies::class,
+-        \App\Http\Middleware\ApiCORSAccess::class,
++//        \App\Http\Middleware\ApiCORSAccess::class,
+     ];
+ 
+     /**
+diff --git a/config/api.php b/config/api.php
+index 4b1890f..1899257 100644
+--- a/config/api.php
++++ b/config/api.php
+@@ -155,7 +155,7 @@ return [
+     */
+ 
+     'middleware' => [
+-
++        \App\Http\Middleware\ApiCORSAccess::class,
+     ],
+ 
+     /*
+@@ -230,4 +230,19 @@ return [
+ 
+     ],
+ 
++    /*
++    |--------------------------------------------------------------------------
++    | Rate Limits
++    |--------------------------------------------------------------------------
++    */
++    'rateLimits' => [
++        'access' => [
++            'expires' => env('RATE_LIMITS_EXPIRES', 1),
++            'limits' => env('RATE_LIMITS', 60),
++        ],
++        'sign' => [
++            'expires' => env('SIGN_RATE_LIMITS_EXPIRES', 1),
++            'limits' => env('SIGN_RATE_LIMITS', 10),
++        ]
++    ]
+ ];
+diff --git a/routes/api.php b/routes/api.php
+index c03a7fc..9488808 100644
+--- a/routes/api.php
++++ b/routes/api.php
+@@ -19,7 +19,13 @@ $api = app(Dingo\Api\Routing\Router::class);
+ $api->version('v1', [
+     'namespace' => 'App\Http\Controllers\Api\v1'
+ ], function ($api) {
+-    $api->group(['as' => 'auth', 'namespace' => 'Auth'], function ($api) {
++    $api->group([
++        'as' => 'auth',
++        'namespace' => 'Auth',
++        'middleware' => 'api.throttle',
++        'limit' => config('api.rateLimits.sign.limits'),
++        'expires' => config('api.rateLimits.sign.expires'),
++    ], function ($api) {
+         $api->post('user', ['as' => 'register', 'uses' => 'AuthController@store']);
+     });
+ });
+\ No newline at end of file
+-- 
+2.17.0
+

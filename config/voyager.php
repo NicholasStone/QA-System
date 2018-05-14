@@ -43,7 +43,7 @@ return [
     */
 
     'models' => [
-        //'namespace' => 'App\\',
+//        'namespace' => 'App\\Models',
     ],
 
     /*
@@ -127,13 +127,13 @@ return [
         /*
          * Select default language
          */
-        'default' => 'zh_CN',
+        'default' => 'zh-CN',
 
         /*
          * Select languages that are supported.
          */
         'locales' => [
-            'zh_CN',
+            'zh-CN',
         ],
     ],
 

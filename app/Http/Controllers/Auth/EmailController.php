@@ -15,6 +15,13 @@ use Illuminate\Contracts\Encryption\DecryptException;
 
 class EmailController extends Controller
 {
+    protected $user;
+
+    public function __construct(User $user)
+    {
+        $this->user = $user;
+    }
+
     public function verify(Request $request)
     {
         try {
@@ -29,7 +36,7 @@ class EmailController extends Controller
             if ($verification['expire']->lt(now())) {
                 $status['status'] = false;
                 $status['message'] = '您的验证邮件已过期';
-            } elseif (!$user = User::find($verification['id'])) {
+            } elseif (!$user = $this->user->find($verification['id'])) {
                 $status['status'] = false;
                 $status['message'] = '此用户不存在';
             } else {

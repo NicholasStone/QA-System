@@ -29,12 +29,14 @@ class UserController extends Controller
      * × 更新用户信息
      * @param UserRequest $request
      * @return \Dingo\Api\Http\Response
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function update(UserRequest $request)
     {
         $attribute = $request->only(['name', 'introduction']);
         // return $this->response->array($attribute);
         $user = $this->user();
+        $this->authorize('updateProfile', $user);
         $user->update($attribute);
         return $this->response->item($user, new UserTransformers())->setStatusCode(201);
     }

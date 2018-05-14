@@ -10,13 +10,25 @@ let mix = require('laravel-mix');
  | file for the application as well as bundling up all the JS files.
  |
  */
-mix.webpackConfig({
-  resolve: {
-    alias: {
-      '~': path.join(__dirname, 'resources/assets','js')
-    }
-  }
-});
+// mix.webpackConfig({
+//   devtool: 'cheap-module-eval-source-map',
+//   resolve: {
+//     alias: {
+//       '~': path.join(__dirname, 'resources/assets', 'js')
+//     }
+//   },
+//   module: {
+//     rules: [
+//       {
+//         test: /\.js$/,
+//         use: ["source-map-loader"],
+//         enforce: "pre"
+//       }
+//     ]
+//   }
+// });
 
-mix.js('resources/assets/js/app.js', 'public/js')
-  .sass('resources/assets/sass/app.scss', 'public/css');
+// mix.js('resources/assets/js/app.js', 'public/js')
+//   .sass('resources/assets/sass/app.scss', 'public/css');
+
+mix.sass('resources/assets/sass/app.scss', 'public/css');

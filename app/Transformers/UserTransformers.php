@@ -13,6 +13,8 @@ Use League\Fractal\TransformerAbstract;
 
 class UserTransformers extends TransformerAbstract
 {
+    protected $availableIncludes=['atom'];
+
     public function transform(User $user)
     {
         return [
@@ -20,10 +22,16 @@ class UserTransformers extends TransformerAbstract
             'name' => $user->name,
             'email' => $user->email,
             'avatar' => $user->avatar,
+        ];
+    }
+
+    public function includeAtom(User $user)
+    {
+        return $this->item([
             'created' => $user->created_at->toDateTimeString(),
             'updated' => $user->updated_at->toDateTimeString(),
             'role' => $user->role_id,
             'introduction' => $user->introduction,
-        ];
+        ], new BlankTransformer());
     }
 }

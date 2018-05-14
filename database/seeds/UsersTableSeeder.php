@@ -22,6 +22,8 @@ class UsersTableSeeder extends Seeder
                 'password'       => bcrypt('password'),
                 'remember_token' => str_random(60),
                 'role_id'        => $role->id,
+                'introduction'   => 'Administrator',
+                'verification'   => 1,
             ]);
         }
     }

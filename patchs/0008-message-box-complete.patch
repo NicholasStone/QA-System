@@ -1,0 +1,596 @@
+From 046b3896196a2416cd9adbdbe8ae25696e69637a Mon Sep 17 00:00:00 2001
+From: nicholas <Nicholas-Stone@outlook.com>
+Date: Wed, 18 Apr 2018 23:21:23 +0800
+Subject: [PATCH 08/16] message box complete
+
+---
+ app/Http/Kernel.php                           |  2 +-
+ app/Http/Middleware/ApiCORSAccess.php         |  4 +-
+ config/api.php                                |  2 +-
+ resources/assets/js/Main.vue                  |  5 +-
+ resources/assets/js/components/alert.vue      | 50 ++++++++++++++-----
+ resources/assets/js/components/message.vue    | 32 ++++++++----
+ resources/assets/js/components/navbar.vue     | 36 ++++++++++---
+ resources/assets/js/router/index.js           | 32 +++++-------
+ resources/assets/js/store/getters.js          |  5 +-
+ .../assets/js/store/modules/authorizations.js | 19 ++++---
+ resources/assets/js/store/modules/index.js    |  4 +-
+ resources/assets/js/store/modules/message.js  | 28 +++++++++--
+ resources/assets/js/utils/tokenCookies.js     | 12 ++---
+ resources/assets/js/views/Profile.vue         | 22 ++++++++
+ resources/assets/js/views/Register.vue        | 16 ++++--
+ resources/assets/js/views/SignIn.vue          | 19 +++----
+ 16 files changed, 203 insertions(+), 85 deletions(-)
+ create mode 100644 resources/assets/js/views/Profile.vue
+
+diff --git a/app/Http/Kernel.php b/app/Http/Kernel.php
+index 5b7189c..ea17f20 100644
+--- a/app/Http/Kernel.php
++++ b/app/Http/Kernel.php
+@@ -19,7 +19,7 @@ class Kernel extends HttpKernel
+         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+         \App\Http\Middleware\TrimStrings::class,
+         \App\Http\Middleware\TrustProxies::class,
+-//        \App\Http\Middleware\ApiCORSAccess::class,
++       \App\Http\Middleware\ApiCORSAccess::class,
+     ];
+ 
+     /**
+diff --git a/app/Http/Middleware/ApiCORSAccess.php b/app/Http/Middleware/ApiCORSAccess.php
+index f9f94e3..d7cb426 100644
+--- a/app/Http/Middleware/ApiCORSAccess.php
++++ b/app/Http/Middleware/ApiCORSAccess.php
+@@ -19,10 +19,8 @@ class ApiCORSAccess
+         $allow_origins = [
+             config('api.domain'),
+             config('app.url'),
++            'http://localhost:8080'
+         ];
+-        if(config('app.debug')){
+-            array_push($allow_origins, 'http://localhost:8080');
+-        }
+         $origin = $request->server('HTTP_ORIGIN');
+         \Debugbar::addMessage('HTTP_ORIGIN = ' . $origin);
+         if (in_array($origin, $allow_origins)) {
+diff --git a/config/api.php b/config/api.php
+index 1899257..a629aaf 100644
+--- a/config/api.php
++++ b/config/api.php
+@@ -155,7 +155,7 @@ return [
+     */
+ 
+     'middleware' => [
+-        \App\Http\Middleware\ApiCORSAccess::class,
++        // \App\Http\Middleware\ApiCORSAccess::class,
+     ],
+ 
+     /*
+diff --git a/resources/assets/js/Main.vue b/resources/assets/js/Main.vue
+index e4ea6b4..ce8cbd4 100644
+--- a/resources/assets/js/Main.vue
++++ b/resources/assets/js/Main.vue
+@@ -1,6 +1,7 @@
+ <template>
+   <div id="app">
+     <navbar/>
++    <messages/>
+     <b-container>
+       <router-view/>
+     </b-container>
+@@ -11,12 +12,14 @@
+ <script>
+ import ContentFooter from './components/content-footer'
+ import Navbar from './components/navbar'
++import Messages from './components/message'
+ 
+ export default {
+   name: 'App',
+   components: {
+     'content-footer': ContentFooter,
+-    'navbar': Navbar
++    'navbar': Navbar,
++    'messages': Messages
+   }
+ }
+ </script>
+diff --git a/resources/assets/js/components/alert.vue b/resources/assets/js/components/alert.vue
+index 2d79246..becd37c 100644
+--- a/resources/assets/js/components/alert.vue
++++ b/resources/assets/js/components/alert.vue
+@@ -1,23 +1,47 @@
+ <template>
+-  <div>
+-    <b-alert
+-      v-for="(alert, key, index) in alerts"
+-      :key="index"
+-      :variant="alert.type"
+-      :show="10"
+-      dismissible>
+-      {{ alert.message }}
+-    </b-alert>
+-  </div>
++  <b-alert
++    v-if="!alerts.read"
++    :key="alerts.index"
++    :variant="alerts.type"
++    :show="alerts.expire"
++    dismissible
++    @dismissed="read(alerts.index)"
++    @dismiss-count-down="countdownChange">
++    {{ alerts.message }}<br>
++    <small v-if="alerts.expire">此消息将在{{ countdown }}秒后关闭</small>
++  </b-alert>
+ </template>
+ 
+ <script>
+ export default {
+   name: 'Alert',
+   props: {
+-    'alerts': {
+-      type: Array,
+-      default: []
++    alerts: {
++      type: Object,
++      default: function () {
++        return {
++          type: 'light',
++          message: '',
++          index: 0,
++          expire: false,
++          local: true
++        }
++      }
++    }
++  },
++  data () {
++    return {
++      countdown: this.alerts.expire
++    }
++  },
++  methods: {
++    read: function (index) {
++      if (!this.alerts.local) {
++        this.$store.dispatch('read', index)
++      }
++    },
++    countdownChange: function (countdown) {
++      this.countdown = countdown
+     }
+   }
+ }
+diff --git a/resources/assets/js/components/message.vue b/resources/assets/js/components/message.vue
+index b4a3a5d..77ae252 100644
+--- a/resources/assets/js/components/message.vue
++++ b/resources/assets/js/components/message.vue
+@@ -1,22 +1,34 @@
+ <template>
+-  <div>
+-    <b-alert
+-      v-for="(alert, key, index) in alerts"
++  <div id="messages">
++    <alert
++      v-for="(message, index) in messages"
++      :data-x="index"
+       :key="index"
+-      :variant="alert.type"
+-      :show="10"
+-      dismissible>
+-      {{ alert.message }}
+-    </b-alert>
++      :alerts="message"
++      class="mb-1 mt-1 mr-2"
++    />
+   </div>
+ </template>
+ 
+ <script>
++import {mapState} from 'vuex'
++
+ export default {
+-  name: 'Message'
++  name: 'Message',
++  computed: {
++    ...mapState({
++      messages: state => state.message.messages
++    })
++  }
+ }
+ </script>
+ 
+ <style scoped>
+-
++  #messages {
++    position: absolute;
++    top: 70px;
++    max-width: 500px;
++    z-index: 1000;
++    right: 0;
++  }
+ </style>
+diff --git a/resources/assets/js/components/navbar.vue b/resources/assets/js/components/navbar.vue
+index 1b8a4fd..633e2ae 100644
+--- a/resources/assets/js/components/navbar.vue
++++ b/resources/assets/js/components/navbar.vue
+@@ -32,16 +32,27 @@
+             type="submit">Search
+           </b-button>
+         </b-nav-form>
+-        <b-nav-item :to="{ name: 'Register'}">注册</b-nav-item>
+-        <b-nav-item :to="{ name: 'Sign-in'}">登录</b-nav-item>
+-        <b-nav-item-dropdown right>
++        <b-nav-item
++          v-if="!authorized"
++          :to="{ name: 'Sign-in'}"
++          class="border-right"
++        >登录
++        </b-nav-item>
++        <b-nav-item
++          v-if="!authorized"
++          :to="{ name: 'Register'}"
++        >
++          注册
++        </b-nav-item>
++        <b-nav-item-dropdown
++          v-if="authorized"
++          right>
+           <!-- Using button-content slot -->
+           <template slot="button-content">
+-            <em>User</em>
++            <em>{{ name }}</em>
+           </template>
+-          <b-dropdown-item :to="{ name: 'Register'}">注册</b-dropdown-item>
+           <b-dropdown-item :to="{ name: 'Home'}">主页</b-dropdown-item>
+-          <b-dropdown-item :to="{ name: 'Sign-in'}">登录</b-dropdown-item>
++          <b-dropdown-item :to="{ name: 'Profile'}">个人信息</b-dropdown-item>
+         </b-nav-item-dropdown>
+       </b-navbar-nav>
+     </b-collapse>
+@@ -60,6 +71,14 @@ export default {
+       path: this.$route.path
+     }
+   },
++  computed: {
++    authorized: function () {
++      return this.$store.getters.token !== ''
++    },
++    name: function () {
++      return this.$store.getters.name
++    }
++  },
+   watch: {
+     '$route.path' (val) {
+       this.index = val === '/'
+@@ -74,5 +93,8 @@ export default {
+ </script>
+ 
+ <style scoped>
+-
++  .divider {
++    width: 2px;
++    background-color: gray();
++  }
+ </style>
+diff --git a/resources/assets/js/router/index.js b/resources/assets/js/router/index.js
+index 7e5b457..0d46c6b 100644
+--- a/resources/assets/js/router/index.js
++++ b/resources/assets/js/router/index.js
+@@ -4,29 +4,23 @@ import Index from '../views/Index'
+ import Register from '../views/Register'
+ import SignIn from '../views/SignIn'
+ import Home from '../views/Home'
++import Profile from '../views/Profile'
+ 
+ Vue.use(Router)
+ 
+-export default new Router({
++const router = new Router({
+   mode: 'history',
+   routes: [
+-    {
+-      path: '/',
+-      name: 'Index',
+-      component: Index
+-    }, {
+-      path: '/register',
+-      name: 'Register',
+-      component: Register
+-    }, {
+-      path: '/sign-in',
+-      alias: '/login',
+-      name: 'Sign-in',
+-      component: SignIn
+-    }, {
+-      path: '/home',
+-      name: 'Home',
+-      component: Home
+-    }
++    {path: '/', name: 'Index', component: Index},
++    {path: '/register', name: 'Register', component: Register},
++    {path: '/sign-in', alias: '/login', name: 'Sign-in', component: SignIn},
++    {path: '/home', name: 'Home', component: Home},
++    {path: '/profile', name: 'Profile', component: Profile}
+   ]
+ })
++
++router.beforeEach((to, from, next) => {
++  next()
++})
++
++export default router
+diff --git a/resources/assets/js/store/getters.js b/resources/assets/js/store/getters.js
+index 5a58cec..ef126a0 100644
+--- a/resources/assets/js/store/getters.js
++++ b/resources/assets/js/store/getters.js
+@@ -1,4 +1,7 @@
+ export default {
+   authentication: state => state.authorization.getters.authorization,
+-  profile: state => state.profile.getters.profile
++  token: state => state.authorization.getters.token,
++  profile: state => state.profile.getters.profile,
++  name: state => state.profile.getters.name,
++  messages: state => state.message.getters.messages
+ }
+diff --git a/resources/assets/js/store/modules/authorizations.js b/resources/assets/js/store/modules/authorizations.js
+index 28da3a0..537077f 100644
+--- a/resources/assets/js/store/modules/authorizations.js
++++ b/resources/assets/js/store/modules/authorizations.js
+@@ -3,8 +3,8 @@ import Communication from '~/api/communication'
+ 
+ export default {
+   state: {
+-    token: '',
+-    expiration: '',
++    token: TokenCookies.get() ? TokenCookies.get() : '',
++    expiration: TokenCookies.get('expiration'),
+     type: 'Bearer'
+   },
+   getters: {
+@@ -36,10 +36,12 @@ export default {
+         Communication.post('authorization', credentials)
+           .then(response => {
+             dispatch('update', response.data)
+-            TokenCookies.set(response.data.token)
++            dispatch('addMessage', {message: '登录成功', type: 'success'})
+             resolve()
+           })
+           .catch(error => {
++            console.log('Error in authorization')
++            console.log(error)
+             reject(error)
+           })
+       })
+@@ -63,11 +65,16 @@ export default {
+     },
+     update: function ({commit, dispatch}, {token, expiration}) {
+       return new Promise((resolve, reject) => {
++        commit('SET_TOKEN', token)
++        commit('SET_EXPIRATION', expiration)
++        TokenCookies.set(token)
++        TokenCookies.set(expiration, 'expiration')
+         dispatch('updateProfile').then(() => {
+-          commit('SET_TOKEN', token)
+-          commit('SET_EXPIRATION', expiration)
+           resolve()
+-        }).catch(error => reject(error))
++        }).catch(error => {
++          console.log('error in update')
++          reject(error)
++        })
+       })
+     }
+   }
+diff --git a/resources/assets/js/store/modules/index.js b/resources/assets/js/store/modules/index.js
+index 73fb8ae..ee99a36 100644
+--- a/resources/assets/js/store/modules/index.js
++++ b/resources/assets/js/store/modules/index.js
+@@ -1,7 +1,9 @@
+ import authorization from './authorizations'
+ import profile from './profile'
++import message from './message'
+ 
+ export default {
+   authorization,
+-  profile
++  profile,
++  message
+ }
+diff --git a/resources/assets/js/store/modules/message.js b/resources/assets/js/store/modules/message.js
+index 4596b67..f18fe2e 100644
+--- a/resources/assets/js/store/modules/message.js
++++ b/resources/assets/js/store/modules/message.js
+@@ -1,6 +1,9 @@
+ export default {
+   state: {
+-    messages: [] // {type: 'danger/success/info', message: 'some message', expire: 10(s)}
++    index: 0,
++    messages: [
++      // {index: 0, type: 'success', message: 'success message', expire: 10, read: false, local: false},
++    ]
+   },
+   getters: {
+     messages: function (state) {
+@@ -13,11 +16,30 @@ export default {
+     },
+     'CLEAR_MESSAGE': function (state) {
+       state.messages.length = 0
++    },
++    'INCREASE_INDEX': function (state) {
++      state.index += 1
++    },
++    'READ': function (state, index) {
++      state.messages[index].read = true
+     }
+   },
+   actions: {
+-    addMessage: function ({commit}, {message, type, expire = 10}) {
+-      commit('SET_MESSAGE', {message, type, expire})
++    addMessage: function ({commit, state}, {message, type, expire = 10}) {
++      commit('ADD_MESSAGE', {
++        index: state.index,
++        type,
++        message,
++        expire,
++        read: false,
++        local: false
++      })
++    },
++    read: function ({commit}, index) {
++      return new Promise(resolve => {
++        commit('READ', index)
++        resolve()
++      })
+     }
+   }
+ }
+diff --git a/resources/assets/js/utils/tokenCookies.js b/resources/assets/js/utils/tokenCookies.js
+index a575f46..83f9c85 100644
+--- a/resources/assets/js/utils/tokenCookies.js
++++ b/resources/assets/js/utils/tokenCookies.js
+@@ -2,16 +2,16 @@ import Cookies from 'js-cookie'
+ 
+ const token = 'Token'
+ 
+-function set (jwt, expires = 7) {
+-  return Cookies.set(token, jwt, {expires})
++function set (jwt, type = token, expires = 7) {
++  return Cookies.set(type, jwt, {expires})
+ }
+ 
+-function get () {
+-  return Cookies.get(token)
++function get (val = token) {
++  return Cookies.get(val)
+ }
+ 
+-function revoke () {
+-  return Cookies.remove(token)
++function revoke (val = token) {
++  return Cookies.remove(val)
+ }
+ 
+ export default {
+diff --git a/resources/assets/js/views/Profile.vue b/resources/assets/js/views/Profile.vue
+new file mode 100644
+index 0000000..a43a9ea
+--- /dev/null
++++ b/resources/assets/js/views/Profile.vue
+@@ -0,0 +1,22 @@
++<template>
++  <div>
++    <b-card>
++      {{ profile }}
++    </b-card>
++  </div>
++</template>
++
++<script>
++export default {
++  name: 'Profile',
++  computed: {
++    profile: function () {
++      return this.$store.getters.profile
++    }
++  }
++}
++</script>
++
++<style scoped>
++
++</style>
+diff --git a/resources/assets/js/views/Register.vue b/resources/assets/js/views/Register.vue
+index 4cad1c1..efb6656 100644
+--- a/resources/assets/js/views/Register.vue
++++ b/resources/assets/js/views/Register.vue
+@@ -2,7 +2,10 @@
+   <div>
+     <b-row class="justify-content-md-center">
+       <b-col cols="8">
+-        <alert :alerts="alerts"/>
++        <alert
++          v-for="(alert, key, index) in alerts"
++          :key="index"
++          :alerts="alert"/>
+         <b-card
+           id="register"
+           title="注册"
+@@ -24,7 +27,9 @@
+                 aria-describedby="name-feedback"
+                 placeholder="请填写您的昵称"/>
+               <b-form-invalid-feedback id="name-feedback">
+-                {{ errors.name }}
++                <span
++                  v-for="(error, key, index) in errors.name"
++                  :key="index">{{ error }}</span>
+               </b-form-invalid-feedback>
+             </b-form-group>
+             <b-form-group
+@@ -41,7 +46,9 @@
+                 aria-describedby="email-feedback"
+                 placeholder="请填写您的电子邮件"/>
+               <b-form-invalid-feedback id="email-feedback">
+-                {{ errors.email }}
++                <span
++                  v-for="(error, key, index) in errors.email"
++                  :key="index">{{ error }}</span>
+               </b-form-invalid-feedback>
+             </b-form-group>
+             <b-form-group
+@@ -213,7 +220,8 @@ export default {
+         .then(response => {
+           this.$store.dispatch('update', response.data)
+             .then(() => {
+-              this.$router.push({name: 'Home'})
++              this.$store.dispatch('addMessage', {message: '登录成功', type: 'success'})
++              this.$router.push('Home')
+             })
+             .catch(() => {
+               this.alerts.push({
+diff --git a/resources/assets/js/views/SignIn.vue b/resources/assets/js/views/SignIn.vue
+index 06f4217..5c64b0c 100644
+--- a/resources/assets/js/views/SignIn.vue
++++ b/resources/assets/js/views/SignIn.vue
+@@ -4,7 +4,10 @@
+       id="sign-in"
+       class="justify-content-md-center">
+       <b-col cols="8">
+-        <alert :alerts="alerts"/>
++        <alert
++          v-for="(alert, key, index) in alerts"
++          :key="index"
++          :alerts="alert"/>
+         <b-card
+           title="登录"
+           sub-title="登录以进行下一步操作">
+@@ -65,12 +68,7 @@ export default {
+         email: '',
+         password: ''
+       },
+-      alerts: [
+-        // {
+-        //     type: 'danger',
+-        //     message: 'Error Demo'
+-        // },
+-      ]
++      alerts: []
+     }
+   },
+   computed: {
+@@ -102,10 +100,13 @@ export default {
+           .catch(error => {
+             this.updateAlerts()
+             this.form.password = ''
+-            _.forEach(error, val => {
++            _.forEach(error, (val, key) => {
+               this.alerts.push({
++                index: key,
++                expire: 10,
+                 type: 'danger',
+-                message: val
++                message: val,
++                local: true
+               })
+             })
+           })
+-- 
+2.17.0
+
