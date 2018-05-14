@@ -4,6 +4,7 @@ namespace App\Events;
 
 use App\Models\QuestionTag;
 use Illuminate\Broadcasting\Channel;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -20,9 +21,9 @@ class QuestionTagEvent
     /**
      * Create a new event instance.
      *
-     * @param QuestionTag $tag
+     * @param Collection $tag
      */
-    public function __construct(QuestionTag $tag)
+    public function __construct(Collection $tag)
     {
         $this->questionTag = $tag;
     }

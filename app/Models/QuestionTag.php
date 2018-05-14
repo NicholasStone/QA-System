@@ -44,8 +44,8 @@ class QuestionTag extends Model
         $this->attributes['meta'] = serialize($value);
     }
 
-    public function getMetaAttribute($value)
+    public function getMetaAttribute()
     {
-        return unserialize($value);
+        return unserialize($this->attributes['meta']);
     }
 }

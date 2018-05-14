@@ -13,34 +13,25 @@ use League\Fractal\TransformerAbstract;
 
 class QuestionTagTransformer extends TransformerAbstract
 {
+
+    protected $availableIncludes=['atom', 'user'];
+
     public function transform(QuestionTag $tag)
     {
         return [
             'id' => $tag->id,
-            'user' => [
-                'id' => $tag->user->id,
-                'name' => $tag->user->name,
-                'email' => $tag->user->email,
-                'avatar' => $tag->user->avatar,
-            ],
             'title' => $tag->name,
             'slug' => $tag->slug,
             'type' => $tag->type ? '客观题' : '主观题',
             'meta' => $tag->meta,
             'description' => $tag->description,
-            'status' => function ($status) {
-                switch ($status) {
-                    case 1:
-                        return "审核已通过";
-                        break;
-                    case 0:
-                        return "正等待审核";
-                        break;
-                    case -1:
-                        return "审核未通过，请修改或删除";
-                        break;
-                }
-            }
+            'status' => $tag->status
         ];
     }
+
+    public function includeUser(QuestionTag $tag)
+    {
+        return $this->item($tag->user, new UserTransformers());
+    }
+
 }

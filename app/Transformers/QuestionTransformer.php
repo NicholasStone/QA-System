@@ -8,39 +8,41 @@
 
 namespace App\Transformers;
 
+use App\Models\Question;
 use League\Fractal\TransformerAbstract;
 
 class QuestionTransformer extends TransformerAbstract
 {
-    public function transform($question)
+    protected $availableIncludes = ['user', 'tag'];
+
+    public function transform(Question $question)
     {
         $data = [
-            'id'     => $question->id,
-            'user'   => [
-                'id'     => $question->id,
-                'name'   => $question->name,
-                'avatar' => $question->avatar,
-                'email'  => $question->email,
-            ],
-            'tag'    => [
-                'id'    => $question->tag->id,
-                'title' => $question->tag->name,
-                'slug'  => $question->tag->slug,
-                'type'  => $question->tag->type ? "客观题" : "主观题",
-            ],
-            'title'  => $question->question,
-            'answer' => $question->answer,
+            'id'      => $question->id,
+            'title'   => $question->question,
+            'answer'  => $question->answer,
+            'created' => $question->created_at->toDateTimeString(),
+            'updated' => $question->updated_at->toDateTimeString(),
         ];
 
         if ($question->tag->type) {
             $data['options'] = $question->options;
         }
 
+        if ($question->getOriginal('pivot_score')){
+            $data['score'] = $question->getOriginal('pivot_score');
+        }
+
         return $data;
     }
 
-    public function includeUser()
+    public function includeUser(Question $question)
     {
-        
+        return $this->item($question->user, new UserTransformers());
+    }
+
+    public function includeTag(Question $question)
+    {
+        return $this->item($question->tag, new QuestionTagTransformer());
     }
 }

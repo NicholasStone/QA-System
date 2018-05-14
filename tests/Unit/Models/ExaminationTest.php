@@ -24,7 +24,7 @@ class ExaminationTest extends TestCase
                 $questions
                     ->random(mt_rand(4, 30))
                     ->each(function ($q) use ($examination) {
-                        $examination->questions()->attach($q, ['score' => 10]);
+                        $examination->questions()->attach($q, ['score' => rand(1, 20)]);
                     });
             });
 

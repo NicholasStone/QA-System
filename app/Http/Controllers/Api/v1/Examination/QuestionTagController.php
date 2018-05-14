@@ -26,7 +26,7 @@ class QuestionTagController extends Controller
     {
         return $this->response
             ->collection($this->tags
-                ->where('status', '=', 1)
+                ->whereStatus(1)
                 ->get(), new QuestionTagTransformer());
     }
 
@@ -66,6 +66,7 @@ class QuestionTagController extends Controller
      * @param QuestionTagRequest $request
      * @param int $id
      * @return \Dingo\Api\Http\Response
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function update(QuestionTagRequest $request, int $id)
     {
@@ -74,6 +75,7 @@ class QuestionTagController extends Controller
         $data['meta'] = json_decode($data['meta']);
 
         $tag = $this->tags->findOrFail($id);
+        $this->authorize('update', $tag);
         $tag->update($data);
         event(new QuestionTagEvent($tag));
         return $this->response->item($tag, new QuestionTagTransformer())->statusCode(201);

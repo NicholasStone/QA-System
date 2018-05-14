@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers\Api\v1\Examination;
 
-use App\Http\Requests\Api\PageRequest;
-use App\Http\Requests\Api\QuestionRequest;
 use App\Models\Question;
 use App\Models\QuestionTag;
+use App\Http\Requests\Api\PageRequest;
 use App\Transformers\QuestionTransformer;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Http\Requests\Api\QuestionRequest;
 use App\Http\Controllers\Api\v1\Controller;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class QuestionController extends Controller
 {
     protected $question = null;
-    protected $tag = null;
+    protected $tag      = null;
 
     /**
      * QuestionController constructor.
@@ -34,22 +33,17 @@ class QuestionController extends Controller
     public function index(PageRequest $request)
     {
         $slug      = $request->input('slug');
-        $page      = $request->only(['per_page', 'page']);
         $questions = $this->questionWithUserAndTag();
 
         if (!empty($slug)) {
-
             $tag = $this->tag->select(['id', 'slug'])->where([
                 ['slug', '=', $slug], ['status', '>=', '1']
             ])->first();
             $questions->where('tag_id', '=', $tag->id);
-
         }
-//        $questions->limit(isset($page['per_page']) ? $page['per_page'] : 10)
-//            ->offset(isset($page['per_page']) ? $page['page'] * $page['per_page'] : 0);
 
         return $this->response->paginator(
-            $questions->paginate(isset($page['per_page']) ? $page['per_page'] : 15),
+            $questions->paginate($request->input('per_page')),
             new QuestionTransformer()
         );
     }
@@ -61,14 +55,14 @@ class QuestionController extends Controller
     public function show($id)
     {
         $question = $this->questionWithUserAndTag()
-            ->where('id', '=', $id)->first();
+                         ->where('id', '=', $id)->first();
 
         return $this->response->item($question, new QuestionTransformer());
     }
 
     /**
      * @param QuestionRequest $request
-     * @return \Dingo\Api\Http\Response
+     * @return \Dingo\Api\Http\Response|void
      */
     public function store(QuestionRequest $request)
     {
@@ -85,9 +79,9 @@ class QuestionController extends Controller
             $data['options'] = array_values($options);
         }
 
-        $this->question->fill($data)->save();
-
-        return $this->response->created();
+        return $this->question->fill($data)->save() ?
+            $this->response->created(null, ['id' => $this->question->id]) :
+            $this->response->errorInternal("创建问题时发生错误");
     }
 
     /**
@@ -104,7 +98,7 @@ class QuestionController extends Controller
             $data['tag_id'] = $data['tag'];
             unset($data['tag']);
         }
-        $this->authorize('updateQuestion', $question);
+        $this->authorize('update', $question);
         $question->update($data);
         return $this->response->item($question, new QuestionTransformer())->statusCode(201);
     }

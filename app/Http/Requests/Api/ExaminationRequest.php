@@ -2,7 +2,8 @@
 
 namespace App\Http\Requests\Api;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\AfterStart;
+use Dingo\Api\Http\FormRequest;
 
 class ExaminationRequest extends FormRequest
 {
@@ -23,8 +24,20 @@ class ExaminationRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            //
-        ];
+        if ($this->isMethod('post')) {
+            return [
+                'title'      => ['required','string','between:1,255'],
+                'time_limit' => ['required','integer'],
+                'start_at'   => ['required','date'],
+                'expire_at'  => ['required','date', new AfterStart($this,'start_at')],
+            ];
+        } elseif ($this->isMethod('patch')) {
+            return [
+                'title'      => ['string','between:1,255'],
+                'time_limit' => ['integer'],
+                'start_at'   => ['date'],
+                'expire_at'  => ['date', new AfterStart($this, 'start_at')],
+            ];
+        }
     }
 }

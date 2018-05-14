@@ -12,7 +12,7 @@ class GenerateToken extends Command
      *
      * @var string
      */
-    protected $signature = 'qa:generate-token';
+    protected $signature = 'token:generate';
 
     /**
      * The console command description.

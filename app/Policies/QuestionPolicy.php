@@ -17,7 +17,7 @@ class QuestionPolicy
      * @param  \App\Models\Question  $question
      * @return mixed
      */
-    public function updateQuestions(User $user, Question $question)
+    public function update(User $user, Question $question)
     {
         return $question->user()->id === $user->id;
     }

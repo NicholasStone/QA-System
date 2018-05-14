@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Pivots\ExaminationQuestionPivot;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -29,13 +30,23 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Examination extends Model
 {
+    protected $fillable = ['user_id', 'title', 'time_limit', 'start_at', 'expire_at'];
+
     public function questions()
     {
-        return $this->belongsToMany(Question::class, 'examination_question');
+        return $this->belongsToMany(Question::class)
+                    ->as(ExaminationQuestionPivot::class)
+                    ->withPivot('score')
+                    ->withTimestamps();
     }
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function atom()
+    {
+        return $this->only(['created_at', 'updated_at']);
     }
 }

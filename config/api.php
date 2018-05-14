@@ -189,7 +189,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Response Transformer
+    | Response DefaultTransformer
     |--------------------------------------------------------------------------
     |
     | Responses can be transformed so that they are easier to format. By

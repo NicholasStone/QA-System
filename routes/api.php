@@ -9,22 +9,26 @@
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
 use Dingo\Api\Routing\Router;
 
 $api = app(Router::class);
 
 $api->version('v1', [
-    'namespace' => 'App\Http\Controllers\Api\v1',
+    'namespace'  => 'App\Http\Controllers\Api\v1',
     'middleware' => ['serializer:array', 'bindings']
 ], function (Router $api) {
     $api->group([
         'middleware' => 'api.throttle',
-        'limit' => config('api.rateLimits.sign.limits'),
-        'expires' => config('api.rateLimits.sign.expires'),
+        'limit'      => config('api.rateLimits.sign.limits'),
+        'expires'    => config('api.rateLimits.sign.expires'),
     ], function (Router $api) {
         $api->group([
             'namespace' => 'Auth',
         ], function (Router $api) {
+            $api->any('echo', function (\Dingo\Api\Http\Request $request) {
+                return $request->all();
+            });
             $api->post('user', 'UserController@store')->name('user.store');
             $api->post('captchas', 'CaptchasController@store')->name('captchas.store');
             $api->post('authorization', 'AuthorizationController@store')->name('authorization.store');
@@ -49,10 +53,12 @@ $api->version('v1', [
                 $api->post('question', 'QuestionController@store')->name('question.store');
                 $api->patch('question/{id}', 'QuestionController@update')->name('question.update');
 
-                $api->get('examination', 'ExaminationController@index')->name('question.index');
-                $api->get('examination/{id}', 'ExaminationController@show')->name('question.show');
-                $api->post('examination', 'ExaminationController@store')->name('question.store');
-                $api->patch('examination', 'ExaminationController@update')->name('question.update');
+                $api->get('examination', 'ExaminationController@index')->name('examination.index');
+                $api->get('examination/{id}', 'ExaminationController@show')->name('examination.show');
+                $api->post('examination', 'ExaminationController@store')->name('examination.store');
+                $api->post('examination/{id}/attach', 'ExaminationController@attach')->name('examination.attach');
+                $api->patch('examination/{id}', 'ExaminationController@update')->name('examination.update');
+                $api->delete('examination/{id}', 'ExaminationController@delete')->name('examination.delete');
             });
         });
     });

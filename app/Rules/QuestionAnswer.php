@@ -60,19 +60,6 @@ class QuestionAnswer implements Rule
                 }); // 答案最大值不能超过选项个数
         }
 
-//        if ($tag->meta['multiple']) {
-//            // 多选
-//            // 答案个数比选项个数多
-//            if ($answer->count() > $option_number) return false;
-//            // 答案最大值大于选项个数
-//            $validate = ;
-//            if (!$validate) {
-//                return false;
-//            }
-//        } elseif ((!$tag->meta['multiple']) && $answer->count() === 1) {
-//            // 单选
-//
-//        }
         return false;
     }
 
