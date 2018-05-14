@@ -1,18 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Api\v1\Examination;
+namespace App\Http\Controllers\Api\v1\Bank;
 
-use App\Http\Requests\Api\AttachRequest;
+use Carbon\Carbon;
 use App\Models\Examination;
 use App\Http\Requests\Api\PageRequest;
+use App\Http\Requests\Api\AttachRequest;
 use App\Http\Controllers\Api\v1\Controller;
-use App\Transformers\BlankTransformer;
 use App\Transformers\ExaminationTransformer;
 use App\Http\Requests\Api\ExaminationRequest;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Collection;
-use Symfony\Component\CssSelector\Exception\InternalErrorException;
 
 class ExaminationController extends Controller
 {

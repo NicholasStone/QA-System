@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\v1\Examination;
+namespace App\Http\Controllers\Api\v1\Bank;
 
 use App\Models\QuestionTag;
 use App\Events\QuestionTagEvent;
@@ -44,6 +44,8 @@ class QuestionTagController extends Controller
             'user_id' => $this->user()->id,
             'status' => 0
         ]);
+
+
         event(new QuestionTagEvent(QuestionTag::create($tag)));
         return $this->response->created();
     }

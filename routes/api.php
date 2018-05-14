@@ -41,7 +41,7 @@ $api->version('v1', [
         $api->group(['middleware' => 'api.auth'], function (Router $api) {
             $api->post('image', 'ImageController@store')->name('image.store');
             $api->post('mail', 'EmailController@show')->name('email.show');
-            $api->group(['namespace' => 'Examination', 'prefix' => 'bank'], function (Router $api) {
+            $api->group(['namespace' => 'Bank', 'prefix' => 'bank'], function (Router $api) {
 
                 $api->get('question-tag', 'QuestionTagController@index')->name('question-tag.index');
                 $api->get('question-tag/{slug}', 'QuestionTagController@show')->name('question-tag.show');

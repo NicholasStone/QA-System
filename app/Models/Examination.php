@@ -6,7 +6,7 @@ use App\Models\Pivots\ExaminationQuestionPivot;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * App\Models\Examination
+ * App\Models\Bank
  *
  * @property int $id
  * @property int $user_id

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\v1\Examination;
+namespace App\Http\Controllers\Api\v1\Bank;
 
 use App\Models\Question;
 use App\Models\QuestionTag;
@@ -8,6 +8,7 @@ use App\Http\Requests\Api\PageRequest;
 use App\Transformers\QuestionTransformer;
 use App\Http\Requests\Api\QuestionRequest;
 use App\Http\Controllers\Api\v1\Controller;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class QuestionController extends Controller
