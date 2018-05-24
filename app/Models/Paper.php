@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Pivots\ExaminationQuestionPivot;
+use App\Models\Pivots\PaperQuestion;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -18,25 +18,25 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Carbon\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|Question[] $questions
  * @property-read User $user
- * @method static \Illuminate\Database\Eloquent\Builder|Examination whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Examination whereExpireAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Examination whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Examination whereStartAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Examination whereTimeLimit($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Examination whereTitle($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Examination whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Examination whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Paper whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Paper whereExpireAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Paper whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Paper whereStartAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Paper whereTimeLimit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Paper whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Paper whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Paper whereUserId($value)
  * @mixin \Eloquent
  */
-class Examination extends Model
+class Paper extends Model
 {
     protected $fillable = ['user_id', 'title', 'time_limit', 'start_at', 'expire_at'];
 
     public function questions()
     {
         return $this->belongsToMany(Question::class)
-                    ->as(ExaminationQuestionPivot::class)
-                    ->withPivot('score')
+                    ->as(PaperQuestion::class)
+                    ->withPivot(['score', 'sequence'])
                     ->withTimestamps();
     }
 

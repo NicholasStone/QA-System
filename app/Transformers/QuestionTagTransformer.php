@@ -22,10 +22,12 @@ class QuestionTagTransformer extends TransformerAbstract
             'id' => $tag->id,
             'title' => $tag->name,
             'slug' => $tag->slug,
-            'type' => $tag->type ? '客观题' : '主观题',
+            'type' => $tag->type, //? '客观题' : '主观题',
             'meta' => $tag->meta,
             'description' => $tag->description,
-            'status' => $tag->status
+            'status' => $tag->status,
+            'created' => $tag->created_at->toDateString(),
+            'updated' => $tag->updated_at->toDateString()
         ];
     }
 

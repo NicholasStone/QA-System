@@ -56,7 +56,7 @@ class QuestionController extends Controller
     public function show($id)
     {
         $question = $this->questionWithUserAndTag()
-                         ->where('id', '=', $id)->first();
+                         ->where('id', '=', $id)->firstOrFail();
 
         return $this->response->item($question, new QuestionTransformer());
     }
@@ -76,8 +76,7 @@ class QuestionController extends Controller
         ];
 
         if ($type) {
-            $options         = json_decode($request->input('options'), true);
-            $data['options'] = array_values($options);
+            $data['options'] = collect($request->input('options'))->pluck('t');
         }
 
         return $this->question->fill($data)->save() ?

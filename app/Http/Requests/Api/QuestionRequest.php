@@ -30,7 +30,7 @@ class QuestionRequest extends FormRequest
                 'tag' => ['required', 'integer', 'exists:question_tags,id'],
                 'type' => ['required', 'in:0,1'],
                 'question' => ['required', 'string'],
-                'options' => ['required_if:type,1', 'json'],
+                'options' => ['required_if:type,1', 'array'],
                 'answer' => ['required', 'string', new QuestionAnswer($this)],
             ];
         } else if ($this->isMethod('patch')) {

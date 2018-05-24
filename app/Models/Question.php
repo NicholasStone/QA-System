@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Pivots\ExaminationQuestionPivot;
+use App\Models\Pivots\PaperQuestion;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $options
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Examination[] $examination
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Paper[] $examination
  * @property-read \App\Models\QuestionTag $tag
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereAnswer($value)
@@ -35,9 +35,9 @@ class Question extends Model
 
     public function examination()
     {
-        return $this->belongsToMany(Examination::class)
-                    ->as(ExaminationQuestionPivot::class)
-                    ->withPivot('score')
+        return $this->belongsToMany(Paper::class)
+                    ->as(PaperQuestion::class)
+                    ->withPivot(['score', 'sequence'])
                     ->withTimestamps();
     }
 

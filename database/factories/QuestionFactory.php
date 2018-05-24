@@ -17,7 +17,8 @@ $factory->define(\App\Models\Question::class, function (Faker $faker) use ($tags
             if (!$tag->type) return null;
             $result = [];
             for ($i = 1; $i <= $options; $i++) {
-                array_push($result, [$i => $faker->sentence()]);
+                // array_push($result, [$i => $faker->sentence()]);
+                $result[] = $faker->sentence();
             }
             return $result;
         },

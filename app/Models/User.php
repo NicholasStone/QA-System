@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Pivots\AnswerRecord;
+use App\Models\Pivots\ExaminationRecord;
 use Illuminate\Notifications\Notifiable;
 use \Illuminate\Contracts\Auth\Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
@@ -22,7 +24,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
  * @property int $notification_count
  * @property string $introduction
  * @property string $verification
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Examination[] $examinations
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Paper[] $examinations
  * @property mixed $locale
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\QuestionTag[] $questionTags
@@ -91,13 +93,23 @@ class User extends \TCG\Voyager\Models\User implements JWTSubject, Authenticatab
         return $this->hasMany(Question::class);
     }
 
-    public function examinations()
+    public function paper()
     {
-        return $this->hasMany(Examination::class);
+        return $this->hasMany(Paper::class);
     }
 
     public function questionTags()
     {
         return $this->hasMany(QuestionTag::class);
+    }
+
+    public function answer_records()
+    {
+        return $this->hasMany(AnswerRecord::class);
+    }
+
+    public function examination_record()
+    {
+        return $this->hasMany(ExaminationRecord::class);
     }
 }

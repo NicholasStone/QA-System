@@ -26,13 +26,16 @@ class QuestionTransformer extends TransformerAbstract
         ];
 
         if ($question->tag->type) {
-            $data['options'] = $question->options;
+            $data['options'] = $this->optionsAdapter($question->options);
         }
 
         if ($question->getOriginal('pivot_score')){
             $data['score'] = $question->getOriginal('pivot_score');
         }
 
+        if ($question->getOriginal('pivot_sequence')){
+            $data['sequence'] = $question->getOriginal('pivot_sequence');
+        }
         return $data;
     }
 
@@ -44,5 +47,21 @@ class QuestionTransformer extends TransformerAbstract
     public function includeTag(Question $question)
     {
         return $this->item($question->tag, new QuestionTagTransformer());
+    }
+
+    protected function optionsAdapter($options)
+    {
+        // dd($options);
+        $result = [];
+        foreach ($options as $key => $item) {
+            if(is_array($item)){
+                foreach ($item as $index => $option) {
+                    $result[] = compact('index', 'option');
+                }
+            } else {
+                $result[] = ['index' => $key + 1, 'option' => $item];
+            }
+        }
+        return $result;
     }
 }

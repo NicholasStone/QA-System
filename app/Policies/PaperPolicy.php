@@ -3,10 +3,10 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Examination;
+use App\Models\Paper;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class ExaminationPolicy
+class PaperPolicy
 {
     use HandlesAuthorization;
 
@@ -14,22 +14,22 @@ class ExaminationPolicy
      * Determine whether the user can update the examination.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Examination  $examination
+     * @param  \App\Models\Paper  $paper
      * @return mixed
      */
-    public function update(User $user, Examination $examination)
+    public function update(User $user, Paper $paper)
     {
-        return $examination->user->id === $user->id;
+        return $paper->user->id === $user->id;
     }
 
     /**
      * Determine whether the user can delete the examination.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Examination  $examination
+     * @param  \App\Models\Paper  $examination
      * @return mixed
      */
-    public function delete(User $user, Examination $examination)
+    public function delete(User $user, Paper $examination)
     {
         return $examination->user->id === $user->id;
     }

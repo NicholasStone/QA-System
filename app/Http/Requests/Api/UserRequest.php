@@ -24,21 +24,19 @@ class UserRequest extends FormRequest
      */
     public function rules()
     {
-        $rules = [];
-        if ($this->method() === 'post') {
-            $rules = [
-                'name' => 'required|regex:/^[A-Za-z0-9\-\_]+$|between:4,20|unique:users',
+        if ($this->isMethod('post')) {
+            return [
+                'name' => 'required|regex:/^[A-Za-z0-9\-\_]+$/|between:4,20|unique:users',
                 'email' => 'required|email|unique:users',
                 'password' => 'required|string|min:6|max:20',
                 'captcha' => ['required', 'array', new Captcha($this)],
             ];
-        } elseif ($this->method() === 'patch') {
-            $rules = [
+        } elseif ($this->isMethod('patch')) {
+            return [
                 'name' => 'string|min:4|max:20|unique:users',
                 'introduction' => 'string|max:50',
             ];
         }
-        return $rules;
     }
 
     public function attributes()

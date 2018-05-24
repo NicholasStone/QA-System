@@ -22,6 +22,7 @@ class UserTransformers extends TransformerAbstract
             'name' => $user->name,
             'email' => $user->email,
             'avatar' => $user->avatar,
+            'role' => $user->role_id,            
         ];
     }
 
@@ -30,7 +31,6 @@ class UserTransformers extends TransformerAbstract
         return $this->item([
             'created' => $user->created_at->toDateTimeString(),
             'updated' => $user->updated_at->toDateTimeString(),
-            'role' => $user->role_id,
             'introduction' => $user->introduction,
         ], new BlankTransformer());
     }

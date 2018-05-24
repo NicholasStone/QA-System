@@ -59,7 +59,7 @@ class QuestionTagController extends Controller
     public function show($slug)
     {
         return $this->response
-            ->item($this->tags->where('slug', '=', $slug)->first(), new QuestionTagTransformer());
+            ->item($this->tags->where('slug', '=', $slug)->firstOrFail(), new QuestionTagTransformer());
     }
 
     /**
