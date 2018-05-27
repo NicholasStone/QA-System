@@ -37,7 +37,7 @@ class Question extends Model
     {
         return $this->belongsToMany(Paper::class)
                     ->as(PaperQuestion::class)
-                    ->withPivot(['score', 'sequence'])
+                    ->withPivot(['score', 'sequence', 'id'])
                     ->withTimestamps();
     }
 
@@ -66,8 +66,8 @@ class Question extends Model
         $this->attributes['answer'] = serialize($value);
     }
 
-    public function getAnswerAttribute($value)
+    public function getAnswerAttribute()
     {
-        return unserialize($value);
+        return unserialize($this->attributes['answer']);
     }
 }

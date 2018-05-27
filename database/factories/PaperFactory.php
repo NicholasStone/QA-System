@@ -10,7 +10,7 @@ $factory->define(\App\Models\Paper::class, function (Faker $faker) use ($user) {
     return [
         'user_id' => $user->random()->id,
         'title' => $faker->sentence,
-//        'time_limit' => mt_rand(0, 7) * 30,
+        'time_limit' => mt_rand(0, 7) * 30,
 //        'start_at' => $start_at->toDateTimeString(),
 //        'expire_at' => $start_at->addDays(mt_rand(0,30))->toDateTimeString(),
     ];

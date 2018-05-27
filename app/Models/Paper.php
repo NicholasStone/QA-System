@@ -27,6 +27,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Paper whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Paper whereUserId($value)
  * @mixin \Eloquent
+ * @property string|null $meta
+ * @method static \Illuminate\Database\Eloquent\Builder|Paper whereMeta($value)
  */
 class Paper extends Model
 {
@@ -36,7 +38,7 @@ class Paper extends Model
     {
         return $this->belongsToMany(Question::class)
                     ->as(PaperQuestion::class)
-                    ->withPivot(['score', 'sequence'])
+                    ->withPivot(['score', 'sequence', 'id'])
                     ->withTimestamps();
     }
 

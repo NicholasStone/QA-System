@@ -124,10 +124,10 @@ class PaperController extends Controller
             $this->response->errorInternal('删除时发生错误');
     }
 
-    protected function syncAdapter(Array $questions)
+    protected function syncAdapter(Array $items)
     {
         $result = [];
-        foreach ($questions as $question) {
+        foreach ($items as $question) {
             $result[$question['id']] = ['score' => $question['score'], 'sequence' => $question['sequence']];
         }
 

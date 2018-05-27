@@ -13,13 +13,17 @@ class CreateExaminationRecordTable extends Migration
      */
     public function up()
     {
-        Schema::create('examination_record', function (Blueprint $table) {
-            $table->increments('id');
+        Schema::create('examination_records', function (Blueprint $table) {
+            $table->uuid('id');
             $table->integer('paper_id');
             $table->integer('user_id');
-            $table->integer('total_score');
+            $table->integer('total_score')->default(0);
+            $table->timestamp('started_at');
+            $table->timestamp('finished_at')->nullable();
             $table->text('meta')->nullable();
             $table->timestamps();
+
+            $table->primary('id');
         });
     }
 
@@ -30,6 +34,6 @@ class CreateExaminationRecordTable extends Migration
      */
     public function down()
     {
-        Schema::drop('examination_record');
+        Schema::drop('examination_records');
     }
 }

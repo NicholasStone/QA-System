@@ -1,9 +1,6 @@
 <?php
 
 namespace App\Models;
-
-use App\Models\Pivots\AnswerRecord;
-use App\Models\Pivots\ExaminationRecord;
 use Illuminate\Notifications\Notifiable;
 use \Illuminate\Contracts\Auth\Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
@@ -24,11 +21,11 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
  * @property int $notification_count
  * @property string $introduction
  * @property string $verification
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Paper[] $examinations
+ * @property-read \Illuminate\Database\Eloquent\Collection|Paper[] $examinations
  * @property mixed $locale
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\QuestionTag[] $questionTags
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Question[] $questions
+ * @property-read \Illuminate\Database\Eloquent\Collection|QuestionTag[] $questionTags
+ * @property-read \Illuminate\Database\Eloquent\Collection|Question[] $questions
  * @property-read \TCG\Voyager\Models\Role|null $role
  * @property-read \Illuminate\Database\Eloquent\Collection|\TCG\Voyager\Models\Role[] $roles
  * @method static \Illuminate\Database\Eloquent\Builder|User whereAvatar($value)
@@ -45,6 +42,9 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereVerification($value)
  * @mixin \Eloquent
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Pivots\AnswerRecord[] $answer_records
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Pivots\ExaminationRecord[] $examination_record
+ * @property-read \Illuminate\Database\Eloquent\Collection|Paper[] $paper
  */
 class User extends \TCG\Voyager\Models\User implements JWTSubject, Authenticatable
 {

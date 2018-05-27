@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 class PaperQuestion extends Pivot
 {
     protected $fillable = ['paper_id', 'question_id', 'score', 'sequence'];
-    protected $hidden = ['paper_id', 'question_id'];
 
     protected $table = 'paper_question';
 

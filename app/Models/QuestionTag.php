@@ -46,6 +46,6 @@ class QuestionTag extends Model
 
     public function getMetaAttribute()
     {
-        return unserialize($this->attributes['meta']);
+        return empty($this->attributes['meta']) ? null : unserialize($this->attributes['meta']);
     }
 }

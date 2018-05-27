@@ -11,6 +11,8 @@ class QuestionTagsTableSeeder extends Seeder
      */
     public function run()
     {
+        \DB::table('question_tags')->truncate();
+
         $this->findQuestionTag('single-choice-question')
             ->fill([
                 'user_id' => 1,
@@ -42,7 +44,7 @@ class QuestionTagsTableSeeder extends Seeder
                 'status' => 1,
                 'slug' => 'true-or-false',
                 'meta' => [
-                    'multiple' => 1,
+                    'multiple' => false,
                     'options' => 2
                 ],
                 'description' => '判断正误',

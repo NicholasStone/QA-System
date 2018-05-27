@@ -60,6 +60,11 @@ $api->version('v1', [
                 $api->patch('paper/{id}', 'PaperController@update')->name('paper.update');
                 $api->delete('paper/{id}', 'PaperController@delete')->name('paper.delete');
             });
+
+            $api->group(['namespace' => 'Record', 'prefix' => 'record'], function (Router $api) {
+                $api->post('examination', 'ExaminationRecordController@store')->name('ExaminationRecord.store');
+                $api->post('answer/{id}', 'AnswerRecordController@store')->name('AnswerRecord.store');
+            });
         });
     });
 });

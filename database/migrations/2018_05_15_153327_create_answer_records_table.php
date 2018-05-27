@@ -14,13 +14,19 @@ class CreateAnswerRecordsTable extends Migration
     public function up()
     {
         Schema::create('answer_records', function (Blueprint $table) {
-            $table->increments('id');
+            $table->uuid('id');
             $table->integer('user_id');
-            $table->integer('recode_id');
+            $table->uuid('record_id');
             $table->integer('paper_question_id');
+            $table->integer('paper_id');
+            $table->integer('question_id');
             $table->text('answer')->nullable();
             $table->boolean('correctness')->default(false);
             $table->integer('score')->default(0);
+            $table->text('meta')->nullable();
+            $table->timestamps();
+
+            $table->primary('id');
         });
     }
 

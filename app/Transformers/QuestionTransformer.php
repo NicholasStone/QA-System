@@ -13,14 +13,15 @@ use League\Fractal\TransformerAbstract;
 
 class QuestionTransformer extends TransformerAbstract
 {
-    protected $availableIncludes = ['user', 'tag'];
+    protected $availableIncludes = ['user', 'tag', 'answer'];
+
+    protected $defaultIncludes = ['tag'];
 
     public function transform(Question $question)
     {
         $data = [
             'id'      => $question->id,
             'title'   => $question->question,
-            'answer'  => $question->answer,
             'created' => $question->created_at->toDateTimeString(),
             'updated' => $question->updated_at->toDateTimeString(),
         ];
@@ -29,11 +30,11 @@ class QuestionTransformer extends TransformerAbstract
             $data['options'] = $this->optionsAdapter($question->options);
         }
 
-        if ($question->getOriginal('pivot_score')){
+        if ($question->getOriginal('pivot_score')) {
             $data['score'] = $question->getOriginal('pivot_score');
         }
 
-        if ($question->getOriginal('pivot_sequence')){
+        if ($question->getOriginal('pivot_sequence')) {
             $data['sequence'] = $question->getOriginal('pivot_sequence');
         }
         return $data;
@@ -49,17 +50,24 @@ class QuestionTransformer extends TransformerAbstract
         return $this->item($question->tag, new QuestionTagTransformer());
     }
 
+    public function includeAnswer(Question $question)
+    {
+        return $this->item([
+            $question->answer
+        ], new BlankTransformer());
+    }
+
     protected function optionsAdapter($options)
     {
         // dd($options);
         $result = [];
         foreach ($options as $key => $item) {
-            if(is_array($item)){
-                foreach ($item as $index => $option) {
-                    $result[] = compact('index', 'option');
+            if (is_array($item)) {
+                foreach ($item as $value => $text) {
+                    $result[] = compact('value', 'text');
                 }
             } else {
-                $result[] = ['index' => $key + 1, 'option' => $item];
+                $result[] = ['value' => $key + 1, 'text' => $item];
             }
         }
         return $result;

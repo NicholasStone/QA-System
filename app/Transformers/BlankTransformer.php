@@ -9,6 +9,7 @@
 namespace App\Transformers;
 
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use League\Fractal\TransformerAbstract;
 
@@ -22,7 +23,7 @@ class BlankTransformer extends TransformerAbstract
     {
         if (is_array($value)){
             return $value;
-        } elseif ($value instanceof Collection){
+        } elseif ($value instanceof Collection || $value instanceof Model){
             return $value->toArray();
         }
 
