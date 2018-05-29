@@ -12,13 +12,13 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $tag_id
  * @property int $user_id
  * @property string $question
- * @property string $answer
+ * @property string|array $answer
  * @property string|null $options
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Paper[] $examination
- * @property-read \App\Models\QuestionTag $tag
- * @property-read \App\Models\User $user
+ * @property-read \Illuminate\Database\Eloquent\Collection|Paper[] $examination
+ * @property-read QuestionTag $tag
+ * @property-read User $user
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereAnswer($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereId($value)

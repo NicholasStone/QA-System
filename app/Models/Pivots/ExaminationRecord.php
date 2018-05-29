@@ -42,7 +42,7 @@ class ExaminationRecord extends Model
 
     protected $keyType = 'string';
 
-    protected $fillable = ['paper_id', 'user_id', 'total_score', 'meta', 'started_at'];
+    protected $fillable = ['paper_id', 'user_id', 'total_score', 'meta', 'started_at', 'finished_at'];
 
     public function paper()
     {

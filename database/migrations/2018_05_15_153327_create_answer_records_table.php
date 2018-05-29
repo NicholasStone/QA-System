@@ -23,6 +23,7 @@ class CreateAnswerRecordsTable extends Migration
             $table->text('answer')->nullable();
             $table->boolean('correctness')->default(false);
             $table->integer('score')->default(0);
+            $table->integer('sequence')->default(1);
             $table->text('meta')->nullable();
             $table->timestamps();
 

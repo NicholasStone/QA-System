@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read PaperQuestion $paper_question
  * @method static \Illuminate\Database\Eloquent\Builder|Paper whereId($value)
  * @property string $recode_id
+ * @property string $meta
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|AnswerRecord whereAnswer($value)
@@ -35,6 +36,15 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|AnswerRecord whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AnswerRecord whereUserId($value)
  * @mixin \Eloquent
+ * @property int $paper_id
+ * @property int $question_id
+ * @property int $sequence
+ * @property-read \App\Models\Paper $paper
+ * @property-read \App\Models\Question $question
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Pivots\AnswerRecord whereMeta($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Pivots\AnswerRecord wherePaperId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Pivots\AnswerRecord whereQuestionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Pivots\AnswerRecord whereSequence($value)
  */
 class AnswerRecord extends Model
 {
@@ -44,7 +54,8 @@ class AnswerRecord extends Model
 
     protected $table = 'answer_records';
 
-    protected $fillable = ['user_id', 'record_id', 'paper_question_id', 'paper_id', 'question_id', 'answer', 'correctness', 'score', 'meta'];
+    protected $fillable = ['user_id', 'record_id', 'paper_question_id', 'paper_id', 'sequence',
+        'question_id', 'answer', 'correctness', 'score', 'meta'];
 
     public function user()
     {

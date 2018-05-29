@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Models;
+use App\Models\Pivots\AnswerRecord;
+use App\Models\Pivots\ExaminationRecord;
 use Illuminate\Notifications\Notifiable;
 use \Illuminate\Contracts\Auth\Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;

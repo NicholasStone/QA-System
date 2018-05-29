@@ -19,10 +19,18 @@ class AnswerRecordTransformer extends TransformerAbstract
     public function transform(AnswerRecord $record)
     {
         return [
-            'id' => $record->id,
-            'answer' => $record->answer,
+            'id'          => $record->id,
+            'answer'      => $record->answer,
             'correctness' => $record->correctness,
-            'score' => $record->score,
+            'score'       => $record->score,
+            'sequence'    => $record->sequence,
+            'meta'        => $record->meta,
         ];
     }
+
+    public function includeUser(AnswerRecord $record)
+    {
+        return $this->item($record->user, new UserTransformers());
+    }
+
 }

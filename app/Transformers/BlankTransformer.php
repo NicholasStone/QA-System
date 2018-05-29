@@ -21,7 +21,7 @@ class BlankTransformer extends TransformerAbstract
      */
     public function  transform($value)
     {
-        if (is_array($value)){
+        if (is_array($value) || is_string($value)){
             return $value;
         } elseif ($value instanceof Collection || $value instanceof Model){
             return $value->toArray();

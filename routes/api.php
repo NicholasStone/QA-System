@@ -41,6 +41,9 @@ $api->version('v1', [
         $api->group(['middleware' => 'api.auth'], function (Router $api) {
             $api->post('image', 'ImageController@store')->name('image.store');
             $api->post('mail', 'EmailController@show')->name('email.show');
+            $api->get('notice', 'PostController@index')->name('post.index');
+            $api->get('notice/{id}', 'PostController@show')->name('post.show');
+
             $api->group(['namespace' => 'Bank', 'prefix' => 'bank'], function (Router $api) {
 
                 $api->get('question-tag', 'QuestionTagController@index')->name('question-tag.index');
@@ -62,8 +65,11 @@ $api->version('v1', [
             });
 
             $api->group(['namespace' => 'Record', 'prefix' => 'record'], function (Router $api) {
-                $api->post('examination', 'ExaminationRecordController@store')->name('ExaminationRecord.store');
-                $api->post('answer/{id}', 'AnswerRecordController@store')->name('AnswerRecord.store');
+                $api->post('examination', 'ExaminationRecordController@store')->name('examination-record.store');
+                $api->post('answer/{id}', 'AnswerRecordController@store')->name('answer-record.store');
+
+                $api->get('examination', 'ExaminationRecordController@index')->name('examination-record.index');
+                $api->get('examination/{id}', 'ExaminationRecordController@show')->name('examination-record.show');
             });
         });
     });
