@@ -25,7 +25,7 @@ class CaptchasRequest extends FormRequest
     {
         return [
             'email' => 'required|email|unique:users',
-            'name' => 'required|string|unique:users'
+            'name' => 'required|regex:/^[A-Za-z0-9\-\_]+$/|between:4,20|unique:users',
         ];
     }
 }

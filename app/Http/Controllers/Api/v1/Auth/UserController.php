@@ -34,7 +34,6 @@ class UserController extends Controller
     public function update(UserRequest $request)
     {
         $attribute = $request->only(['name', 'introduction']);
-        // return $this->response->array($attribute);
         $user = $this->user();
         $this->authorize('updateProfile', $user);
         $user->update($attribute);

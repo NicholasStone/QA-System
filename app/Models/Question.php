@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Pivots\ExaminationQuestionPivot;
+use App\Models\Pivots\PaperQuestion;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -12,13 +12,13 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $tag_id
  * @property int $user_id
  * @property string $question
- * @property string $answer
+ * @property string|array $answer
  * @property string|null $options
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Examination[] $examination
- * @property-read \App\Models\QuestionTag $tag
- * @property-read \App\Models\User $user
+ * @property-read \Illuminate\Database\Eloquent\Collection|Paper[] $examination
+ * @property-read QuestionTag $tag
+ * @property-read User $user
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereAnswer($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereId($value)
@@ -35,9 +35,9 @@ class Question extends Model
 
     public function examination()
     {
-        return $this->belongsToMany(Examination::class)
-                    ->as(ExaminationQuestionPivot::class)
-                    ->withPivot('score')
+        return $this->belongsToMany(Paper::class)
+                    ->as(PaperQuestion::class)
+                    ->withPivot(['score', 'sequence', 'id'])
                     ->withTimestamps();
     }
 
@@ -66,8 +66,8 @@ class Question extends Model
         $this->attributes['answer'] = serialize($value);
     }
 
-    public function getAnswerAttribute($value)
+    public function getAnswerAttribute()
     {
-        return unserialize($value);
+        return unserialize($this->attributes['answer']);
     }
 }

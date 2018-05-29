@@ -26,9 +26,9 @@ $api->version('v1', [
         $api->group([
             'namespace' => 'Auth',
         ], function (Router $api) {
-            $api->any('echo', function (\Dingo\Api\Http\Request $request) {
-                return $request->all();
-            });
+//            $api->any('echo', function (\Dingo\Api\Http\Request $request) {
+//                return $request->all();
+//            });
             $api->post('user', 'UserController@store')->name('user.store');
             $api->post('captchas', 'CaptchasController@store')->name('captchas.store');
             $api->post('authorization', 'AuthorizationController@store')->name('authorization.store');
@@ -41,7 +41,10 @@ $api->version('v1', [
         $api->group(['middleware' => 'api.auth'], function (Router $api) {
             $api->post('image', 'ImageController@store')->name('image.store');
             $api->post('mail', 'EmailController@show')->name('email.show');
-            $api->group(['namespace' => 'Examination', 'prefix' => 'bank'], function (Router $api) {
+            $api->get('notice', 'PostController@index')->name('post.index');
+            $api->get('notice/{id}', 'PostController@show')->name('post.show');
+
+            $api->group(['namespace' => 'Bank', 'prefix' => 'bank'], function (Router $api) {
 
                 $api->get('question-tag', 'QuestionTagController@index')->name('question-tag.index');
                 $api->get('question-tag/{slug}', 'QuestionTagController@show')->name('question-tag.show');
@@ -53,12 +56,20 @@ $api->version('v1', [
                 $api->post('question', 'QuestionController@store')->name('question.store');
                 $api->patch('question/{id}', 'QuestionController@update')->name('question.update');
 
-                $api->get('examination', 'ExaminationController@index')->name('examination.index');
-                $api->get('examination/{id}', 'ExaminationController@show')->name('examination.show');
-                $api->post('examination', 'ExaminationController@store')->name('examination.store');
-                $api->post('examination/{id}/attach', 'ExaminationController@attach')->name('examination.attach');
-                $api->patch('examination/{id}', 'ExaminationController@update')->name('examination.update');
-                $api->delete('examination/{id}', 'ExaminationController@delete')->name('examination.delete');
+                $api->get('paper', 'PaperController@index')->name('paper.index');
+                $api->get('paper/{id}', 'PaperController@show')->name('paper.show');
+                $api->post('paper', 'PaperController@store')->name('paper.store');
+                $api->post('paper/{id}/attach', 'PaperController@attach')->name('paper.attach');
+                $api->patch('paper/{id}', 'PaperController@update')->name('paper.update');
+                $api->delete('paper/{id}', 'PaperController@delete')->name('paper.delete');
+            });
+
+            $api->group(['namespace' => 'Record', 'prefix' => 'record'], function (Router $api) {
+                $api->post('examination', 'ExaminationRecordController@store')->name('examination-record.store');
+                $api->post('answer/{id}', 'AnswerRecordController@store')->name('answer-record.store');
+
+                $api->get('examination', 'ExaminationRecordController@index')->name('examination-record.index');
+                $api->get('examination/{id}', 'ExaminationRecordController@show')->name('examination-record.show');
             });
         });
     });

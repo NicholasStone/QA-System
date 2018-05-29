@@ -18,7 +18,7 @@ class CreateExaminationsTable extends Migration
             $table->integer('user_id');
             $table->string('title');
             $table->tinyInteger('time_limit')->unsigned();
-            $table->timestamp('start_at');
+            $table->timestamp('start_at')->nullable();
             $table->timestamp('expire_at')->nullable();
             $table->timestamps();
         });
