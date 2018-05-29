@@ -1,14 +1,1 @@
-<!doctype html>
-<html lang="{{ app()->getLocale() }}">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <title>考拉</title>
-    </head>
-    <body>
-        <div id="app"></div>
-    <script src="{{ asset('js/app.js') }}"></script>
-    </body>
-</html>
+<!DOCTYPE html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>考拉</title><link href=/static/css/app.d08864e6e95b338ff90968222837ed41.css rel=stylesheet></head><body><div id=app></div><script type=text/javascript src=/static/js/manifest.2ae2e69a05c33dfc65f8.js></script><script type=text/javascript src=/static/js/vendor.e4144ac45017b052e41d.js></script><script type=text/javascript src=/static/js/app.c7630149ab8a70c598c0.js></script></body></html>
