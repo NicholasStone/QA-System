@@ -32,7 +32,7 @@ class AuthorizationController extends Controller
             $this->response->errorUnauthorized('用户名或密码错误');
         }
 
-        return $this->responseWithToken($token, $request);
+        return $this->responseWithToken($token);
     }
 
     /**
@@ -41,7 +41,7 @@ class AuthorizationController extends Controller
      * @return Response
      */
     public function update(Request $request){
-        return $this->responseWithToken($this->guard()->refresh(), $request);
+        return $this->responseWithToken($this->guard()->refresh());
     }
 
     /**

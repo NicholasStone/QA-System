@@ -3,9 +3,10 @@
 namespace App\Providers;
 
 use Dingo\Api\Facade\API;
+use Dingo\Api\Transformer\Factory;
+use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\ServiceProvider;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -18,8 +19,10 @@ class ApiServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        app(Factory::class)->disableEagerLoading();
+
         API::error(function (ModelNotFoundException $e) {
-            throw new NotFoundHttpException('Resource Not Found');
+            throw new NotFoundHttpException($e->getMessage());
         });
 
         API::error(function (AuthorizationException $e) {
@@ -34,6 +37,6 @@ class ApiServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+
     }
 }

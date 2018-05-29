@@ -44,7 +44,7 @@ class QuestionAnswer implements Rule
 
         $tag = (new QuestionTag)->find($this->request->input('tag'));
         $answer = collect(explode(',', $value));
-        $option_number = collect(json_decode($this->request->input('options')))->count(); // 选项个数
+        $option_number = collect($this->request->input('options'))->count(); // 选项个数
 
         if (!$tag->meta['multiple']) {
             // 单选
