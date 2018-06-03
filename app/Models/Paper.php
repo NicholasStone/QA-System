@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Pivots\PaperQuestion;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 
 /**
  * App\Models\Bank
@@ -32,6 +33,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Paper extends Model
 {
+    use Searchable;
+
     protected $fillable = ['user_id', 'title', 'time_limit', 'start_at', 'expire_at'];
 
     public function questions()
@@ -50,5 +53,13 @@ class Paper extends Model
     public function atom()
     {
         return $this->only(['created_at', 'updated_at']);
+    }
+
+    public function toSearchableArray()
+    {
+        return [
+            'paper_id'    => $this->id,
+            'title' => $this->title,
+        ];
     }
 }
