@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Pivots\PaperQuestion;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 
 /**
  * App\Models\Question
@@ -31,6 +32,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Question extends Model
 {
+    use Searchable;
     protected $fillable = ['tag_id', 'user_id', 'question', 'answer', 'options'];
 
     public function examination()
@@ -69,5 +71,15 @@ class Question extends Model
     public function getAnswerAttribute()
     {
         return unserialize($this->attributes['answer']);
+    }
+
+    public function toSearchableArray()
+    {
+        return [
+            'question_id' => $this->id,
+            'question'    => $this->question,
+            'options'     => $this->options,
+            'tag'         => $this->tag->name
+        ];
     }
 }

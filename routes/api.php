@@ -23,12 +23,8 @@ $api->version('v1', [
         'limit'      => config('api.rateLimits.sign.limits'),
         'expires'    => config('api.rateLimits.sign.expires'),
     ], function (Router $api) {
-        $api->group([
-            'namespace' => 'Auth',
-        ], function (Router $api) {
-//            $api->any('echo', function (\Dingo\Api\Http\Request $request) {
-//                return $request->all();
-//            });
+        $api->group(['namespace' => 'Auth',], function (Router $api) {
+
             $api->post('user', 'UserController@store')->name('user.store');
             $api->post('captchas', 'CaptchasController@store')->name('captchas.store');
             $api->post('authorization', 'AuthorizationController@store')->name('authorization.store');
