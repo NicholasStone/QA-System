@@ -3,8 +3,6 @@
 namespace App\Models;
 use App\Models\Pivots\AnswerRecord;
 use App\Models\Pivots\ExaminationRecord;
-use Illuminate\Notifications\Notifiable;
-use \Illuminate\Contracts\Auth\Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 /**
@@ -48,10 +46,8 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Pivots\ExaminationRecord[] $examination_record
  * @property-read \Illuminate\Database\Eloquent\Collection|Paper[] $paper
  */
-class User extends \TCG\Voyager\Models\User implements JWTSubject, Authenticatable
+class User extends \TCG\Voyager\Models\User implements JWTSubject
 {
-    use Notifiable;
-
     /**
      * The attributes that are mass assignable.
      *

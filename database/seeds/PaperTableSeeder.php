@@ -11,6 +11,6 @@ class PaperTableSeeder extends Seeder
      */
     public function run()
     {
-        factory(\App\Models\Question::class, 5000)->create();
+        factory(\App\Models\Paper::class, 200)->create();
     }
 }

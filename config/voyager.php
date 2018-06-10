@@ -13,8 +13,9 @@ return [
     'user' => [
         'add_default_role_on_register' => true,
         'default_role'                 => 'user',
-        'namespace'                    => App\Models\User::class,
-        'default_avatar'               => 'users/default.png',
+        'admin_permission'             => 'browse_admin',
+        'namespace'                    => \App\Models\User::class,
+        'default_avatar'               => config('app.url').'users/default.png',
     ],
 
     /*
@@ -127,7 +128,7 @@ return [
         /*
          * Select default language
          */
-        'default' => 'zh-CN',
+        'default' => 'zh_CN',
 
         /*
          * Select languages that are supported.
